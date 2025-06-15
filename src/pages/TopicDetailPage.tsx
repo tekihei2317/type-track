@@ -2,6 +2,7 @@ import { useParams } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTopicsData } from '../hooks/useTopicsData'
 import { TypingPractice, type TypingResult } from '../components/TypingPractice'
+import { InlineTypingPractice } from '../components/InlineTypingPractice'
 import type { Word } from '../types'
 
 export function TopicDetailPage() {
@@ -9,6 +10,7 @@ export function TopicDetailPage() {
   const [selectedWord, setSelectedWord] = useState<Word | null>(null)
   const [searchText, setSearchText] = useState('')
   const [practiceMode, setPracticeMode] = useState(false)
+  const [typingResults, setTypingResults] = useState<Map<number, TypingResult>>(new Map())
   
   const { topics, getWordsByTopicId, loading } = useTopicsData()
   
@@ -22,11 +24,24 @@ export function TopicDetailPage() {
   const handlePracticeComplete = (result: TypingResult) => {
     console.log('Practice completed:', result)
     setPracticeMode(false)
-    // TODO: 結果を保存する
+    setTypingResults(prev => new Map(prev).set(result.word.id, result))
   }
 
   const handlePracticeSkip = () => {
     setPracticeMode(false)
+  }
+
+  const handleInlineComplete = (wordId: number, result: { correct: boolean; kpm?: number }) => {
+    console.log('Inline practice completed:', wordId, result)
+    if (result.correct) {
+      // 次のワードに自動で進む
+      const currentIndex = filteredWords.findIndex(w => w.id === wordId)
+      if (currentIndex < filteredWords.length - 1) {
+        setSelectedWord(filteredWords[currentIndex + 1])
+      } else {
+        setSelectedWord(null) // 最後のワードが完了
+      }
+    }
   }
 
   const startPractice = (word: Word) => {
@@ -92,17 +107,25 @@ export function TopicDetailPage() {
         </div>
       </div>
 
-      {/* 練習開始ボタン */}
+      {/* インライン練習エリア */}
       {selectedWord && (
-        <div className="text-center py-8 bg-blue-50 rounded-lg">
-          <div className="text-2xl font-bold text-gray-900 mb-2">{selectedWord.text}</div>
-          <div className="text-gray-600 mb-6">{selectedWord.reading}</div>
-          <button
-            onClick={() => startPractice(selectedWord)}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-          >
-            練習を開始
-          </button>
+        <div className="bg-blue-50 rounded-lg p-6">
+          <div className="text-center mb-4">
+            <div className="text-xl font-bold text-gray-900">{selectedWord.text}</div>
+          </div>
+          <InlineTypingPractice
+            word={selectedWord}
+            onComplete={(result) => handleInlineComplete(selectedWord.id, result)}
+            isActive={true}
+          />
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => startPractice(selectedWord)}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              フルスクリーン練習
+            </button>
+          </div>
         </div>
       )}
 
@@ -160,36 +183,39 @@ export function TopicDetailPage() {
                 </td>
               </tr>
             ) : (
-              filteredWords.map((word) => (
-                <tr
-                  key={word.id}
-                  onClick={() => setSelectedWord(word)}
-                  className={`cursor-pointer hover:bg-gray-50 ${
-                    selectedWord?.id === word.id ? 'bg-blue-50' : ''
-                  }`}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{word.text}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    -
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    -
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        startPractice(word)
-                      }}
-                      className="text-blue-600 hover:text-blue-800 font-medium"
-                    >
-                      練習
-                    </button>
-                  </td>
-                </tr>
-              ))
+              filteredWords.map((word) => {
+                const result = typingResults.get(word.id)
+                return (
+                  <tr
+                    key={word.id}
+                    onClick={() => setSelectedWord(word)}
+                    className={`cursor-pointer hover:bg-gray-50 ${
+                      selectedWord?.id === word.id ? 'bg-blue-50' : ''
+                    }`}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{word.text}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {result?.kpm || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {result ? Math.round((result.correctInputs / result.totalInputs) * 100) + '%' : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          startPractice(word)
+                        }}
+                        className="text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        練習
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })
             )}
           </tbody>
         </table>

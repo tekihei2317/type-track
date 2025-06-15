@@ -21,6 +21,10 @@ export type TypingChecker = {
     typedPart: string
     currentChar: string
     remainingPart: string
+    expectedRoman: string
+    typedRoman: string
+    currentRoman: string
+    remainingRoman: string
   }
 }
 
@@ -29,6 +33,7 @@ export function createTypingChecker(word: string): TypingChecker {
   let wordIndex = 0
   let completed = false
   let currentInput = ''
+  let romanIndex = 0
   const expectedInput = createExpectedInput(word)
 
   const checker: TypingChecker = {
@@ -60,6 +65,7 @@ export function createTypingChecker(word: string): TypingChecker {
           // 正しい入力
           wordIndex += exactEntry.output.length
           currentInput += char
+          romanIndex += exactEntry.input.length
           buffer = exactEntry.nextInput || ''
           
           // 単語が完了したかチェック
@@ -108,11 +114,19 @@ export function createTypingChecker(word: string): TypingChecker {
       const currentChar = wordIndex < word.length ? word[wordIndex] : ''
       const remainingPart = word.slice(wordIndex + 1)
       
+      const typedRoman = expectedInput.slice(0, romanIndex)
+      const currentRoman = buffer
+      const remainingRoman = expectedInput.slice(romanIndex + buffer.length)
+      
       return {
         word,
         typedPart,
         currentChar,
-        remainingPart
+        remainingPart,
+        expectedRoman: expectedInput,
+        typedRoman,
+        currentRoman,
+        remainingRoman
       }
     }
   }
