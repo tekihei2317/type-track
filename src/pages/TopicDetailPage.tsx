@@ -8,8 +8,6 @@ export function TopicDetailPage() {
   const { topicId } = useParams({ from: '/topics/$topicId' })
   const [selectedWord, setSelectedWord] = useState<Word | null>(null)
   const [searchText, setSearchText] = useState('')
-  const [practiceMode, setPracticeMode] = useState(false)
-  // const [typingResults, setTypingResults] = useState<Map<number, TypingResult>>(new Map())
 
   const { topics, getWordsByTopicId, loading } = useTopicsData()
 
@@ -20,15 +18,6 @@ export function TopicDetailPage() {
     w => w.text.includes(searchText) || w.reading.includes(searchText)
   )
 
-  // const handlePracticeComplete = (result: TypingResult) => {
-  //   console.log('Practice completed:', result)
-  //   setPracticeMode(false)
-  //   setTypingResults(prev => new Map(prev).set(result.word.id, result))
-  // }
-
-  // const handlePracticeSkip = () => {
-  //   setPracticeMode(false)
-  // }
 
   const handleInlineComplete = (wordId: number, result: { correct: boolean; kpm?: number }) => {
     console.log('Inline practice completed:', wordId, result)
@@ -43,10 +32,6 @@ export function TopicDetailPage() {
     }
   }
 
-  const startPractice = (word: Word) => {
-    setSelectedWord(word)
-    setPracticeMode(true)
-  }
 
   if (loading) {
     return (
@@ -64,28 +49,6 @@ export function TopicDetailPage() {
     )
   }
 
-  if (practiceMode && selectedWord) {
-    return (
-      <div className="space-y-6">
-        {/* ヘッダー部分 */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{topic.name}</h1>
-            <div className="flex items-center gap-4 mt-1">
-              <span className="text-sm font-semibold text-blue-600">基礎練習</span>
-              <span className="text-sm text-gray-600">実践練習</span>
-            </div>
-          </div>
-          <button
-            onClick={() => setPracticeMode(false)}
-            className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50"
-          >
-            ワード一覧に戻る
-          </button>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="space-y-6">
@@ -111,14 +74,6 @@ export function TopicDetailPage() {
             onComplete={result => handleInlineComplete(selectedWord.id, result)}
             isActive={true}
           />
-          <div className="mt-4 text-center">
-            <button
-              onClick={() => startPractice(selectedWord)}
-              className="text-sm text-blue-600 hover:text-blue-800"
-            >
-              フルスクリーン練習
-            </button>
-          </div>
         </div>
       )}
 

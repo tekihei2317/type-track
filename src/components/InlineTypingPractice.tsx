@@ -22,8 +22,6 @@ export function InlineTypingPractice({
   const checker = useRef(initializeChecker({ word: word.reading }))
   const [startTime, setStartTime] = useState<number>(0)
   const [hasStarted, setHasStarted] = useState(false)
-  const [totalInputs, setTotalInputs] = useState(0)
-  const [correctInputs, setCorrectInputs] = useState(0)
 
   const [inputState, setInputState] = useState<WordInputState>({
     currentKana: '',
@@ -36,8 +34,6 @@ export function InlineTypingPractice({
     checker.current = initializeChecker({ word: word.reading })
     setStartTime(0)
     setHasStarted(false)
-    setTotalInputs(0)
-    setCorrectInputs(0)
     setInputState({
       currentKana: '',
       currentRoman: '',
@@ -102,13 +98,6 @@ export function InlineTypingPractice({
         <span className="text-green-600">{inputState.currentRoman}</span>
         <span className="text-gray-400">{inputState.expectedRoman}</span>
       </div>
-
-      {/* 状態表示 */}
-      {isActive && (
-        <div className="text-xs text-gray-500">
-          {!hasStarted ? 'キーを押して開始' : `入力中... ${correctInputs}/${totalInputs}`}
-        </div>
-      )}
     </div>
   )
 }
