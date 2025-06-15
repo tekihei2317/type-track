@@ -18,7 +18,6 @@ export function TopicDetailPage() {
     w => w.text.includes(searchText) || w.reading.includes(searchText)
   )
 
-
   const handleInlineComplete = (wordId: number, result: { correct: boolean; kpm?: number }) => {
     console.log('Inline practice completed:', wordId, result)
     if (result.correct) {
@@ -31,7 +30,6 @@ export function TopicDetailPage() {
       }
     }
   }
-
 
   if (loading) {
     return (
@@ -48,7 +46,6 @@ export function TopicDetailPage() {
       </div>
     )
   }
-
 
   return (
     <div className="space-y-6">
@@ -128,9 +125,6 @@ export function TopicDetailPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 安定打
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                操作
-              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -153,14 +147,8 @@ export function TopicDetailPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{word.text}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {/* {result?.kpm || '-'} */}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {/* {result
-                        ? Math.round((result.correctInputs / result.totalInputs) * 100) + '%'
-                        : '-'} */}
-                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
                   </tr>
                 )
               })
