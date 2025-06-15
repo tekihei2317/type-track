@@ -1,21 +1,36 @@
 import { useParams } from '@tanstack/react-router'
 import { useState } from 'react'
-import { sampleTopics, sampleWords } from '../data/sampleData'
+import { useTopicsData } from '../hooks/useTopicsData'
 import type { Word } from '../types'
 
 export function TopicDetailPage() {
   const { topicId } = useParams({ from: '/topics/$topicId' })
   const [selectedWord, setSelectedWord] = useState<Word | null>(null)
   const [searchText, setSearchText] = useState('')
-
-  const topic = sampleTopics.find(t => t.id === parseInt(topicId))
-  const words = sampleWords.filter(w => w.topicId === parseInt(topicId))
+  
+  const { topics, getWordsByTopicId, loading } = useTopicsData()
+  
+  const topicIdNum = parseInt(topicId)
+  const topic = topics.find(t => t.id === topicIdNum)
+  const words = getWordsByTopicId(topicIdNum)
   const filteredWords = words.filter(w => 
     w.text.includes(searchText) || w.reading.includes(searchText)
   )
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-500">読み込み中...</div>
+      </div>
+    )
+  }
+
   if (!topic) {
-    return <div>お題が見つかりません</div>
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-500">お題が見つかりません</div>
+      </div>
+    )
   }
 
   return (
