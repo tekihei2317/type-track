@@ -11,14 +11,14 @@ export function TopicDetailPage() {
   const [searchText, setSearchText] = useState('')
   const [practiceMode, setPracticeMode] = useState(false)
   const [typingResults, setTypingResults] = useState<Map<number, TypingResult>>(new Map())
-  
+
   const { topics, getWordsByTopicId, loading } = useTopicsData()
-  
+
   const topicIdNum = parseInt(topicId)
   const topic = topics.find(t => t.id === topicIdNum)
   const words = getWordsByTopicId(topicIdNum)
-  const filteredWords = words.filter(w => 
-    w.text.includes(searchText) || w.reading.includes(searchText)
+  const filteredWords = words.filter(
+    w => w.text.includes(searchText) || w.reading.includes(searchText)
   )
 
   const handlePracticeComplete = (result: TypingResult) => {
@@ -115,7 +115,7 @@ export function TopicDetailPage() {
           </div>
           <InlineTypingPractice
             word={selectedWord}
-            onComplete={(result) => handleInlineComplete(selectedWord.id, result)}
+            onComplete={result => handleInlineComplete(selectedWord.id, result)}
             isActive={true}
           />
           <div className="mt-4 text-center">
@@ -133,15 +133,25 @@ export function TopicDetailPage() {
       <div className="flex gap-4 items-center">
         <div className="relative flex-1 max-w-md">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <svg
+              className="h-4 w-4 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
             </svg>
           </div>
           <input
             type="text"
             placeholder="検索"
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={e => setSearchText(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
           />
         </div>
@@ -183,7 +193,7 @@ export function TopicDetailPage() {
                 </td>
               </tr>
             ) : (
-              filteredWords.map((word) => {
+              filteredWords.map(word => {
                 const result = typingResults.get(word.id)
                 return (
                   <tr
@@ -200,11 +210,13 @@ export function TopicDetailPage() {
                       {result?.kpm || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {result ? Math.round((result.correctInputs / result.totalInputs) * 100) + '%' : '-'}
+                      {result
+                        ? Math.round((result.correctInputs / result.totalInputs) * 100) + '%'
+                        : '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <button
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation()
                           startPractice(word)
                         }}

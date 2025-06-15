@@ -40,61 +40,64 @@ export function TypingPractice({ word, onComplete, onSkip }: TypingPracticeProps
     setLastInputCorrect(true)
   }, [word])
 
-  const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    // 特殊キーは無視
-    if (event.key.length > 1 && event.key !== 'Backspace') {
-      return
-    }
-
-    // Escキーでスキップ
-    if (event.key === 'Escape' && onSkip) {
-      onSkip()
-      return
-    }
-
-    // Backspaceは無視（簡略化）
-    if (event.key === 'Backspace') {
-      return
-    }
-
-    // 最初の入力で練習開始
-    if (!isActive) {
-      setIsActive(true)
-      setStartTime(Date.now())
-    }
-
-    // 入力処理
-    const result = checker.inputChar(event.key)
-    setTotalInputs(prev => prev + 1)
-    
-    if (result.correct) {
-      setCorrectInputs(prev => prev + 1)
-      setLastInputCorrect(true)
-    } else {
-      setMistakes(prev => prev + 1)
-      setLastInputCorrect(false)
-    }
-
-    // 完了チェック
-    if (result.completed && onComplete) {
-      const endTime = Date.now()
-      const duration = endTime - startTime
-      const kpm = Math.round((word.reading.length / (duration / 1000)) * 60)
-      
-      const typingResult: TypingResult = {
-        word,
-        completed: true,
-        startTime,
-        endTime,
-        totalInputs: totalInputs + 1,
-        correctInputs: correctInputs + (result.correct ? 1 : 0),
-        mistakes: mistakes + (result.correct ? 0 : 1),
-        kpm
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      // 特殊キーは無視
+      if (event.key.length > 1 && event.key !== 'Backspace') {
+        return
       }
-      
-      onComplete(typingResult)
-    }
-  }, [checker, isActive, startTime, totalInputs, correctInputs, mistakes, word, onComplete, onSkip])
+
+      // Escキーでスキップ
+      if (event.key === 'Escape' && onSkip) {
+        onSkip()
+        return
+      }
+
+      // Backspaceは無視（簡略化）
+      if (event.key === 'Backspace') {
+        return
+      }
+
+      // 最初の入力で練習開始
+      if (!isActive) {
+        setIsActive(true)
+        setStartTime(Date.now())
+      }
+
+      // 入力処理
+      const result = checker.inputChar(event.key)
+      setTotalInputs(prev => prev + 1)
+
+      if (result.correct) {
+        setCorrectInputs(prev => prev + 1)
+        setLastInputCorrect(true)
+      } else {
+        setMistakes(prev => prev + 1)
+        setLastInputCorrect(false)
+      }
+
+      // 完了チェック
+      if (result.completed && onComplete) {
+        const endTime = Date.now()
+        const duration = endTime - startTime
+        const kpm = Math.round((word.reading.length / (duration / 1000)) * 60)
+
+        const typingResult: TypingResult = {
+          word,
+          completed: true,
+          startTime,
+          endTime,
+          totalInputs: totalInputs + 1,
+          correctInputs: correctInputs + (result.correct ? 1 : 0),
+          mistakes: mistakes + (result.correct ? 0 : 1),
+          kpm,
+        }
+
+        onComplete(typingResult)
+      }
+    },
+    [checker, isActive, startTime, totalInputs, correctInputs, mistakes, word, onComplete, onSkip]
+  )
 
   // キーボードイベントリスナーを設定
   useEffect(() => {
@@ -113,7 +116,7 @@ export function TypingPractice({ word, onComplete, onSkip }: TypingPracticeProps
       <div className="text-center py-8">
         <div className="text-2xl font-bold text-gray-900 mb-2">{word.text}</div>
         <div className="text-gray-600 mb-6">{word.reading}</div>
-        
+
         {/* タイピング表示エリア */}
         <div className="bg-white border-2 border-gray-200 rounded-lg p-6 font-mono text-2xl">
           <div className="min-h-[3rem] flex items-center justify-center">
@@ -124,11 +127,9 @@ export function TypingPractice({ word, onComplete, onSkip }: TypingPracticeProps
             <span className="text-gray-400">{state.remainingPart}</span>
           </div>
         </div>
-        
+
         {/* 期待される入力表示 */}
-        <div className="mt-2 text-sm text-gray-500">
-          入力: {checker.currentInput}
-        </div>
+        <div className="mt-2 text-sm text-gray-500">入力: {checker.currentInput}</div>
       </div>
 
       {/* 統計情報 */}
@@ -137,8 +138,8 @@ export function TypingPractice({ word, onComplete, onSkip }: TypingPracticeProps
         <div className="grid grid-cols-3 gap-6">
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600">
-              {isActive && startTime > 0 
-                ? Math.round((word.reading.length / ((Date.now() - startTime) / 1000)) * 60) 
+              {isActive && startTime > 0
+                ? Math.round((word.reading.length / ((Date.now() - startTime) / 1000)) * 60)
                 : '-'}
             </div>
             <div className="text-sm text-gray-600">KPM</div>

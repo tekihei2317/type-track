@@ -8,7 +8,7 @@ export function RootComponent() {
       <div className="flex">
         {/* サイドバー */}
         <Sidebar />
-        
+
         {/* メインコンテンツ */}
         <div className="flex-1 flex flex-col">
           <header className="bg-white border-b border-gray-200 px-6 py-4">
@@ -21,7 +21,7 @@ export function RootComponent() {
               <span className="text-sm text-gray-500">Cmd K</span>
             </div>
           </header>
-          
+
           <main className="flex-1 p-6">
             <Outlet />
           </main>

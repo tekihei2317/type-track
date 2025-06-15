@@ -8,7 +8,11 @@ type InlineTypingPracticeProps = {
   isActive?: boolean
 }
 
-export function InlineTypingPractice({ word, onComplete, isActive = false }: InlineTypingPracticeProps) {
+export function InlineTypingPractice({
+  word,
+  onComplete,
+  isActive = false,
+}: InlineTypingPracticeProps) {
   const [checker, setChecker] = useState<TypingChecker>(() => createTypingChecker(word.reading))
   const [startTime, setStartTime] = useState<number>(0)
   const [hasStarted, setHasStarted] = useState(false)
@@ -25,45 +29,48 @@ export function InlineTypingPractice({ word, onComplete, isActive = false }: Inl
     setCorrectInputs(0)
   }, [word])
 
-  const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    if (!isActive) return
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (!isActive) return
 
-    // 特殊キーは無視
-    if (event.key.length > 1 && event.key !== 'Backspace') {
-      return
-    }
+      // 特殊キーは無視
+      if (event.key.length > 1 && event.key !== 'Backspace') {
+        return
+      }
 
-    // Backspaceは無視（簡略化）
-    if (event.key === 'Backspace') {
-      return
-    }
+      // Backspaceは無視（簡略化）
+      if (event.key === 'Backspace') {
+        return
+      }
 
-    // 最初の入力で練習開始
-    if (!hasStarted) {
-      setHasStarted(true)
-      setStartTime(Date.now())
-    }
+      // 最初の入力で練習開始
+      if (!hasStarted) {
+        setHasStarted(true)
+        setStartTime(Date.now())
+      }
 
-    // 入力処理
-    const result = checker.inputChar(event.key)
-    setTotalInputs(prev => prev + 1)
-    
-    if (result.correct) {
-      setCorrectInputs(prev => prev + 1)
-    }
+      // 入力処理
+      const result = checker.inputChar(event.key)
+      setTotalInputs(prev => prev + 1)
 
-    // 完了チェック
-    if (result.completed && onComplete) {
-      const endTime = Date.now()
-      const duration = endTime - startTime
-      const kpm = Math.round((word.reading.length / (duration / 1000)) * 60)
-      
-      onComplete({
-        correct: true,
-        kpm: kpm
-      })
-    }
-  }, [checker, isActive, hasStarted, startTime, word, onComplete])
+      if (result.correct) {
+        setCorrectInputs(prev => prev + 1)
+      }
+
+      // 完了チェック
+      if (result.completed && onComplete) {
+        const endTime = Date.now()
+        const duration = endTime - startTime
+        const kpm = Math.round((word.reading.length / (duration / 1000)) * 60)
+
+        onComplete({
+          correct: true,
+          kpm: kpm,
+        })
+      }
+    },
+    [checker, isActive, hasStarted, startTime, word, onComplete]
+  )
 
   // キーボードイベントリスナーを設定
   useEffect(() => {
@@ -85,7 +92,7 @@ export function InlineTypingPractice({ word, onComplete, isActive = false }: Inl
         <span className="bg-blue-200 px-1">{state.currentChar}</span>
         <span className="text-gray-400">{state.remainingPart}</span>
       </div>
-      
+
       {/* ローマ字表示 */}
       <div className="font-mono text-sm text-gray-600">
         <span className="text-green-600">{state.typedRoman}</span>

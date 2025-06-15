@@ -14,7 +14,10 @@ export async function loadXmlFile(path: string): Promise<string> {
   }
 }
 
-export async function loadETypingTopic(xmlPath: string, topicId: number): Promise<{ topic: Topic; words: Word[] }> {
+export async function loadETypingTopic(
+  xmlPath: string,
+  topicId: number
+): Promise<{ topic: Topic; words: Word[] }> {
   try {
     const xmlText = await loadXmlFile(xmlPath)
     const eTypingTopic = parseXmlToTopic(xmlText)
@@ -31,10 +34,10 @@ export async function loadAllETypingTopics(): Promise<{ topics: Topic[]; words: 
     { path: '/words/1258_給食のおかず.xml', id: 1258 },
     { path: '/words/1259_梅雨の言葉.xml', id: 1259 },
   ]
-  
+
   const allTopics: Topic[] = []
   const allWords: Word[] = []
-  
+
   for (const file of xmlFiles) {
     try {
       const { topic, words } = await loadETypingTopic(file.path, file.id)
@@ -44,6 +47,6 @@ export async function loadAllETypingTopics(): Promise<{ topics: Topic[]; words: 
       console.error(`Failed to load ${file.path}:`, error)
     }
   }
-  
+
   return { topics: allTopics, words: allWords }
 }

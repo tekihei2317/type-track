@@ -50,30 +50,30 @@ export function createTypingChecker(word: string): TypingChecker {
       }
 
       const newBuffer = buffer + char
-      
+
       // 完全一致する変換ルールを検索
       const exactEntry = searchEntry(newBuffer)
-      
+
       // プレフィックス一致する変換ルールを検索
       const prefixEntries = searchEntriesByPrefix(newBuffer)
 
       if (exactEntry) {
         // 完全一致した場合
         const expectedOutput = word.slice(wordIndex, wordIndex + exactEntry.output.length)
-        
+
         if (exactEntry.output === expectedOutput) {
           // 正しい入力
           wordIndex += exactEntry.output.length
           currentInput += char
           romanIndex += exactEntry.input.length
           buffer = exactEntry.nextInput || ''
-          
+
           // 単語が完了したかチェック
           if (wordIndex >= word.length) {
             completed = true
             return { correct: true, completed: true }
           }
-          
+
           return { correct: true, completed: false }
         } else {
           // 間違った入力
@@ -86,7 +86,7 @@ export function createTypingChecker(word: string): TypingChecker {
           const expectedOutput = word.slice(wordIndex, wordIndex + entry.output.length)
           return entry.output === expectedOutput
         })
-        
+
         if (validEntries.length > 0) {
           // 継続可能な入力
           buffer = newBuffer
@@ -113,11 +113,11 @@ export function createTypingChecker(word: string): TypingChecker {
       const typedPart = word.slice(0, wordIndex)
       const currentChar = wordIndex < word.length ? word[wordIndex] : ''
       const remainingPart = word.slice(wordIndex + 1)
-      
+
       const typedRoman = expectedInput.slice(0, romanIndex)
       const currentRoman = buffer
       const remainingRoman = expectedInput.slice(romanIndex + buffer.length)
-      
+
       return {
         word,
         typedPart,
@@ -126,9 +126,9 @@ export function createTypingChecker(word: string): TypingChecker {
         expectedRoman: expectedInput,
         typedRoman,
         currentRoman,
-        remainingRoman
+        remainingRoman,
       }
-    }
+    },
   }
 
   return checker

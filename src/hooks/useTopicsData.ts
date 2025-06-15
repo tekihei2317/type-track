@@ -14,13 +14,13 @@ export function useTopicsData() {
       try {
         setLoading(true)
         setError(null)
-        
+
         const { topics: loadedTopics, words: loadedWords } = await loadAllETypingTopics()
-        
+
         // Combine sample data with loaded e-typing data
         const allTopics = [...sampleTopics, ...loadedTopics]
         const allWords = [...sampleWords, ...loadedWords]
-        
+
         setTopics(allTopics)
         setWords(allWords)
       } catch (err) {
@@ -40,6 +40,6 @@ export function useTopicsData() {
     words,
     loading,
     error,
-    getWordsByTopicId: (topicId: number) => words.filter(word => word.topicId === topicId)
+    getWordsByTopicId: (topicId: number) => words.filter(word => word.topicId === topicId),
   }
 }
