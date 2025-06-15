@@ -1,7 +1,6 @@
 import { useParams } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTopicsData } from '../hooks/useTopicsData'
-import { TypingPractice, type TypingResult } from '../components/TypingPractice'
 import { InlineTypingPractice } from '../components/InlineTypingPractice'
 import type { Word } from '../types'
 
@@ -10,7 +9,7 @@ export function TopicDetailPage() {
   const [selectedWord, setSelectedWord] = useState<Word | null>(null)
   const [searchText, setSearchText] = useState('')
   const [practiceMode, setPracticeMode] = useState(false)
-  const [typingResults, setTypingResults] = useState<Map<number, TypingResult>>(new Map())
+  // const [typingResults, setTypingResults] = useState<Map<number, TypingResult>>(new Map())
 
   const { topics, getWordsByTopicId, loading } = useTopicsData()
 
@@ -21,15 +20,15 @@ export function TopicDetailPage() {
     w => w.text.includes(searchText) || w.reading.includes(searchText)
   )
 
-  const handlePracticeComplete = (result: TypingResult) => {
-    console.log('Practice completed:', result)
-    setPracticeMode(false)
-    setTypingResults(prev => new Map(prev).set(result.word.id, result))
-  }
+  // const handlePracticeComplete = (result: TypingResult) => {
+  //   console.log('Practice completed:', result)
+  //   setPracticeMode(false)
+  //   setTypingResults(prev => new Map(prev).set(result.word.id, result))
+  // }
 
-  const handlePracticeSkip = () => {
-    setPracticeMode(false)
-  }
+  // const handlePracticeSkip = () => {
+  //   setPracticeMode(false)
+  // }
 
   const handleInlineComplete = (wordId: number, result: { correct: boolean; kpm?: number }) => {
     console.log('Inline practice completed:', wordId, result)
@@ -84,12 +83,6 @@ export function TopicDetailPage() {
             ワード一覧に戻る
           </button>
         </div>
-
-        <TypingPractice
-          word={selectedWord}
-          onComplete={handlePracticeComplete}
-          onSkip={handlePracticeSkip}
-        />
       </div>
     )
   }
@@ -194,7 +187,6 @@ export function TopicDetailPage() {
               </tr>
             ) : (
               filteredWords.map(word => {
-                const result = typingResults.get(word.id)
                 return (
                   <tr
                     key={word.id}
@@ -207,23 +199,12 @@ export function TopicDetailPage() {
                       <div className="text-sm font-medium text-gray-900">{word.text}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {result?.kpm || '-'}
+                      {/* {result?.kpm || '-'} */}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {result
+                      {/* {result
                         ? Math.round((result.correctInputs / result.totalInputs) * 100) + '%'
-                        : '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <button
-                        onClick={e => {
-                          e.stopPropagation()
-                          startPractice(word)
-                        }}
-                        className="text-blue-600 hover:text-blue-800 font-medium"
-                      >
-                        練習
-                      </button>
+                        : '-'} */}
                     </td>
                   </tr>
                 )

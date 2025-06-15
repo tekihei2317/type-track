@@ -1,252 +1,144 @@
-export type RomanEntry = {
-  input: string
-  output: string
-  nextInput?: string
+import type { TableEntry } from './romantable-type'
+import { defaultRomanTable } from './romantable-default'
+
+// const romanTable = tukiRomanTableForRoman;
+const romanTable = defaultRomanTable
+
+/**
+ * 文字列に該当するルールを検索する
+ */
+export function searchEntry(text: string): TableEntry | undefined {
+  return romanTable.find(entry => entry.input === text)
 }
 
-// ローマ字変換テーブル
-export const romanTable: RomanEntry[] = [
-  // 基本的な五十音
-  { input: 'a', output: 'あ' },
-  { input: 'i', output: 'い' },
-  { input: 'u', output: 'う' },
-  { input: 'e', output: 'え' },
-  { input: 'o', output: 'お' },
-
-  { input: 'ka', output: 'か' },
-  { input: 'ki', output: 'き' },
-  { input: 'ku', output: 'く' },
-  { input: 'ke', output: 'け' },
-  { input: 'ko', output: 'こ' },
-
-  { input: 'sa', output: 'さ' },
-  { input: 'si', output: 'し' },
-  { input: 'shi', output: 'し' },
-  { input: 'su', output: 'す' },
-  { input: 'se', output: 'せ' },
-  { input: 'so', output: 'そ' },
-
-  { input: 'ta', output: 'た' },
-  { input: 'ti', output: 'ち' },
-  { input: 'chi', output: 'ち' },
-  { input: 'tu', output: 'つ' },
-  { input: 'tsu', output: 'つ' },
-  { input: 'te', output: 'て' },
-  { input: 'to', output: 'と' },
-
-  { input: 'na', output: 'な' },
-  { input: 'ni', output: 'に' },
-  { input: 'nu', output: 'ぬ' },
-  { input: 'ne', output: 'ね' },
-  { input: 'no', output: 'の' },
-
-  { input: 'ha', output: 'は' },
-  { input: 'hi', output: 'ひ' },
-  { input: 'hu', output: 'ふ' },
-  { input: 'fu', output: 'ふ' },
-  { input: 'he', output: 'へ' },
-  { input: 'ho', output: 'ほ' },
-
-  { input: 'ma', output: 'ま' },
-  { input: 'mi', output: 'み' },
-  { input: 'mu', output: 'む' },
-  { input: 'me', output: 'め' },
-  { input: 'mo', output: 'も' },
-
-  { input: 'ya', output: 'や' },
-  { input: 'yu', output: 'ゆ' },
-  { input: 'yo', output: 'よ' },
-
-  { input: 'ra', output: 'ら' },
-  { input: 'ri', output: 'り' },
-  { input: 'ru', output: 'る' },
-  { input: 're', output: 'れ' },
-  { input: 'ro', output: 'ろ' },
-
-  { input: 'wa', output: 'わ' },
-  { input: 'wo', output: 'を' },
-  { input: 'n', output: 'ん' },
-
-  // 濁音
-  { input: 'ga', output: 'が' },
-  { input: 'gi', output: 'ぎ' },
-  { input: 'gu', output: 'ぐ' },
-  { input: 'ge', output: 'げ' },
-  { input: 'go', output: 'ご' },
-
-  { input: 'za', output: 'ざ' },
-  { input: 'zi', output: 'じ' },
-  { input: 'ji', output: 'じ' },
-  { input: 'zu', output: 'ず' },
-  { input: 'ze', output: 'ぜ' },
-  { input: 'zo', output: 'ぞ' },
-
-  { input: 'da', output: 'だ' },
-  { input: 'di', output: 'ぢ' },
-  { input: 'du', output: 'づ' },
-  { input: 'de', output: 'で' },
-  { input: 'do', output: 'ど' },
-
-  { input: 'ba', output: 'ば' },
-  { input: 'bi', output: 'び' },
-  { input: 'bu', output: 'ぶ' },
-  { input: 'be', output: 'べ' },
-  { input: 'bo', output: 'ぼ' },
-
-  // 半濁音
-  { input: 'pa', output: 'ぱ' },
-  { input: 'pi', output: 'ぴ' },
-  { input: 'pu', output: 'ぷ' },
-  { input: 'pe', output: 'ぺ' },
-  { input: 'po', output: 'ぽ' },
-
-  // 拗音
-  { input: 'kya', output: 'きゃ' },
-  { input: 'kyi', output: 'きぃ' },
-  { input: 'kyu', output: 'きゅ' },
-  { input: 'kye', output: 'きぇ' },
-  { input: 'kyo', output: 'きょ' },
-
-  { input: 'sha', output: 'しゃ' },
-  { input: 'sya', output: 'しゃ' },
-  { input: 'shi', output: 'し' },
-  { input: 'syi', output: 'しぃ' },
-  { input: 'shu', output: 'しゅ' },
-  { input: 'syu', output: 'しゅ' },
-  { input: 'she', output: 'しぇ' },
-  { input: 'sye', output: 'しぇ' },
-  { input: 'sho', output: 'しょ' },
-  { input: 'syo', output: 'しょ' },
-
-  { input: 'cha', output: 'ちゃ' },
-  { input: 'tya', output: 'ちゃ' },
-  { input: 'chi', output: 'ち' },
-  { input: 'tyi', output: 'ちぃ' },
-  { input: 'chu', output: 'ちゅ' },
-  { input: 'tyu', output: 'ちゅ' },
-  { input: 'che', output: 'ちぇ' },
-  { input: 'tye', output: 'ちぇ' },
-  { input: 'cho', output: 'ちょ' },
-  { input: 'tyo', output: 'ちょ' },
-
-  { input: 'nya', output: 'にゃ' },
-  { input: 'nyi', output: 'にぃ' },
-  { input: 'nyu', output: 'にゅ' },
-  { input: 'nye', output: 'にぇ' },
-  { input: 'nyo', output: 'にょ' },
-
-  { input: 'hya', output: 'ひゃ' },
-  { input: 'hyi', output: 'ひぃ' },
-  { input: 'hyu', output: 'ひゅ' },
-  { input: 'hye', output: 'ひぇ' },
-  { input: 'hyo', output: 'ひょ' },
-
-  { input: 'mya', output: 'みゃ' },
-  { input: 'myi', output: 'みぃ' },
-  { input: 'myu', output: 'みゅ' },
-  { input: 'mye', output: 'みぇ' },
-  { input: 'myo', output: 'みょ' },
-
-  { input: 'rya', output: 'りゃ' },
-  { input: 'ryi', output: 'りぃ' },
-  { input: 'ryu', output: 'りゅ' },
-  { input: 'rye', output: 'りぇ' },
-  { input: 'ryo', output: 'りょ' },
-
-  // 濁音の拗音
-  { input: 'gya', output: 'ぎゃ' },
-  { input: 'gyi', output: 'ぎぃ' },
-  { input: 'gyu', output: 'ぎゅ' },
-  { input: 'gye', output: 'ぎぇ' },
-  { input: 'gyo', output: 'ぎょ' },
-
-  { input: 'ja', output: 'じゃ' },
-  { input: 'jya', output: 'じゃ' },
-  { input: 'zya', output: 'じゃ' },
-  { input: 'ji', output: 'じ' },
-  { input: 'jyi', output: 'じぃ' },
-  { input: 'zyi', output: 'じぃ' },
-  { input: 'ju', output: 'じゅ' },
-  { input: 'jyu', output: 'じゅ' },
-  { input: 'zyu', output: 'じゅ' },
-  { input: 'je', output: 'じぇ' },
-  { input: 'jye', output: 'じぇ' },
-  { input: 'zye', output: 'じぇ' },
-  { input: 'jo', output: 'じょ' },
-  { input: 'jyo', output: 'じょ' },
-  { input: 'zyo', output: 'じょ' },
-
-  { input: 'bya', output: 'びゃ' },
-  { input: 'byi', output: 'びぃ' },
-  { input: 'byu', output: 'びゅ' },
-  { input: 'bye', output: 'びぇ' },
-  { input: 'byo', output: 'びょ' },
-
-  // 半濁音の拗音
-  { input: 'pya', output: 'ぴゃ' },
-  { input: 'pyi', output: 'ぴぃ' },
-  { input: 'pyu', output: 'ぴゅ' },
-  { input: 'pye', output: 'ぴぇ' },
-  { input: 'pyo', output: 'ぴょ' },
-
-  // 促音（っ）のパターン
-  { input: 'kk', output: 'っ', nextInput: 'k' },
-  { input: 'ss', output: 'っ', nextInput: 's' },
-  { input: 'tt', output: 'っ', nextInput: 't' },
-  { input: 'pp', output: 'っ', nextInput: 'p' },
-  { input: 'cc', output: 'っ', nextInput: 'c' },
-  { input: 'gg', output: 'っ', nextInput: 'g' },
-  { input: 'zz', output: 'っ', nextInput: 'z' },
-  { input: 'jj', output: 'っ', nextInput: 'j' },
-  { input: 'dd', output: 'っ', nextInput: 'd' },
-  { input: 'bb', output: 'っ', nextInput: 'b' },
-  { input: 'ff', output: 'っ', nextInput: 'f' },
-  { input: 'hh', output: 'っ', nextInput: 'h' },
-  { input: 'mm', output: 'っ', nextInput: 'm' },
-  { input: 'rr', output: 'っ', nextInput: 'r' },
-  { input: 'ww', output: 'っ', nextInput: 'w' },
-  { input: 'yy', output: 'っ', nextInput: 'y' },
-
-  // 数字
-  { input: '1', output: '１' },
-  { input: '2', output: '２' },
-  { input: '3', output: '３' },
-  { input: '4', output: '４' },
-  { input: '5', output: '５' },
-  { input: '6', output: '６' },
-  { input: '7', output: '７' },
-  { input: '8', output: '８' },
-  { input: '9', output: '９' },
-  { input: '0', output: '０' },
-
-  // 記号
-  { input: '-', output: 'ー' },
-  { input: '.', output: '。' },
-  { input: ',', output: '、' },
-  { input: '?', output: '？' },
-  { input: '!', output: '！' },
-]
-
-export function searchEntry(input: string): RomanEntry | undefined {
-  return romanTable.find(entry => entry.input === input)
+/**
+ * ローマ字を変換する
+ */
+export function convertRoman(text: string): string {
+  const rule = searchEntry(text)
+  if (rule === undefined) return text
+  return rule.output
 }
 
-export function searchEntriesByPrefix(prefix: string): RomanEntry[] {
+/**
+ * entry.inputがprefixで始まるものを検索する
+ */
+export function searchEntriesByPrefix(prefix: string): TableEntry[] {
   return romanTable.filter(entry => entry.input.startsWith(prefix))
 }
 
-export function createExpectedInput(word: string): string {
-  // 単純化：ひらがなからローマ字への変換
-  // 実際のタイピングゲームでは、より複雑な処理が必要
-  let result = ''
-  for (let i = 0; i < word.length; i++) {
-    const char = word[i]
-    const entry = romanTable.find(e => e.output === char)
+/**
+ * ローマ字の文字列を、ひらがなに変換する
+ */
+export function convert(roman: string): string {
+  let hiragana = ''
+  let buffer = ''
+  for (let i = 0; i < roman.length; i++) {
+    buffer += roman[i]
+
+    const result = convertBuffer(buffer)
+    hiragana += result.output
+    buffer = result.buffer
+  }
+  return hiragana
+}
+
+export function convertBuffer(buffer: string): {
+  buffer: string
+  output: string
+} {
+  const entry = searchEntry(buffer)
+  const prefixEntries = searchEntriesByPrefix(buffer)
+
+  if (prefixEntries.length >= 2) {
+    // バッファに対する（将来的なものも含む）変換候補が複数ある場合は、変換を保留する
+    // 例: buffer=nのとき、nかnnかnaか分からないので保留する
+    return { buffer, output: '' }
+  } else {
     if (entry) {
-      result += entry.input
+      // 変換ルールが1つしかない場合、そのルールを使って変換する
+      return {
+        output: entry.output,
+        buffer: entry.nextInput ? entry.nextInput : '',
+      }
     } else {
-      result += char // そのまま追加（英数字など）
+      // 変換ルールがない場合、バッファはこれから変換される可能性はないので、区切って変換を完了させる
+      // |buffer|-1文字と、1文字の2つに分けて変換すればいいっぽい
+
+      const left = buffer.slice(0, buffer.length - 1)
+      const right = buffer.slice(buffer.length - 1)
+
+      // 左半分を変換する。本当は右半分も変換して、変換できなかった場合はバッファに入れる必要がある。
+      // ここで変換していないのは、ローマ字には1文字で変換されるものがaiueoしかなく、
+      // アルファベットの入力のみであれば他の文字+aiueoは全てルールに従って変換されるため。
+      // 例えば記号も入力する場合は、";a"などを";あ"に変換する必要があるので、ここで変換が必要。
+      // 他にも、例えば"na"→"な"というルールがなければ、"na"をここで"んあ"に変換する必要がある。
+      return { output: convertRoman(left), buffer: right }
     }
   }
-  return result
+}
+
+/**
+ * ワードに対して、予想されるローマ字の文字列を作成する
+ */
+export function createExpectedInput(
+  word: string,
+  initialBuffer: string | undefined = undefined
+): string {
+  // 文字列を前から順番に見ていって、最長一致するものを選択していく
+
+  let index = 0
+  let buffer = initialBuffer
+  let expected = ''
+
+  while (index < word.length) {
+    let candidate: TableEntry | undefined
+
+    romanTable.forEach(entry => {
+      // バッファと一致しているかどうか
+      const matchBuffer = buffer ? entry.input.startsWith(buffer) : true
+
+      const isOutputCorrect = entry.output === word.slice(index, index + entry.output.length)
+      let isNextInputCorrect = true
+      if (entry.nextInput) {
+        const nextKanaIndex = index + entry.output.length
+        isNextInputCorrect = searchEntriesByPrefix(entry.nextInput).some(
+          e => e.output === word.slice(nextKanaIndex, nextKanaIndex + e.output.length)
+        )
+      }
+
+      if (matchBuffer && isOutputCorrect && isNextInputCorrect) {
+        // 最長一致の中で、最初に一致したものを選択する
+        if (candidate === undefined || entry.output.length > candidate.output.length) {
+          candidate = entry
+        }
+      }
+    })
+
+    // 変換ルールが存在しなかった場合（記号などがある場合は実装が必要）
+    if (!candidate) {
+      throw new Error(`${word.slice(index)} を変換できません`)
+    }
+
+    index += candidate.output.length
+
+    // 月配列で文字の区切りがわかるように、空白を挿入しておく
+    // if (expected !== "") expected += " ";
+
+    expected += candidate.input.slice(buffer ? buffer.length : 0)
+    buffer = candidate.nextInput ? candidate.nextInput : undefined
+  }
+
+  return expected
+}
+
+/**
+ * TODO:
+ */
+export function checkRightCorrect(right: string, word: string, index: number) {
+  return romanTable
+    .filter(entry => {
+      return entry.input.startsWith(right)
+    })
+    .some(entry => entry.output === word.slice(index, index + entry.output.length))
 }

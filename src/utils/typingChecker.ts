@@ -1,133 +1,138 @@
-import { searchEntry, searchEntriesByPrefix, createExpectedInput } from './romanTable'
+import {
+  checkRightCorrect,
+  convertRoman,
+  createExpectedInput,
+  searchEntriesByPrefix,
+  searchEntry,
+} from './romanTable'
 
 export type CheckResult = {
   correct: boolean
-  completed: boolean
-  currentChar?: string
-  nextChar?: string
 }
 
-export type TypingChecker = {
-  word: string
-  expectedInput: string
-  currentInput: string
-  completed: boolean
-  buffer: string
-  wordIndex: number
-  inputChar: (char: string) => CheckResult
-  reset: () => void
-  getCurrentState: () => {
-    word: string
-    typedPart: string
-    currentChar: string
-    remainingPart: string
-    expectedRoman: string
-    typedRoman: string
-    currentRoman: string
-    remainingRoman: string
-  }
+export type Checker = {
+  expected: string
+  currentRoman: string
+  currentKana: string
+
+  /**
+   * 文字が正しい入力であればセットする
+   */
+  setCharacter: (character: string) => CheckResult
 }
 
-export function createTypingChecker(word: string): TypingChecker {
+export function initializeChecker({ word }: { word: string }): Checker {
   let buffer = ''
+  let expected = createExpectedInput(word)
   let wordIndex = 0
-  let completed = false
-  let currentInput = ''
-  let romanIndex = 0
-  const expectedInput = createExpectedInput(word)
+  let currentKana = ''
+  let currentRoman = ''
 
-  const checker: TypingChecker = {
-    word,
-    expectedInput,
-    currentInput,
-    completed,
-    buffer,
-    wordIndex,
+  const checker: Checker = {
+    get expected(): string {
+      return expected
+    },
+    get currentRoman(): string {
+      return currentRoman
+    },
+    get currentKana(): string {
+      return currentKana
+    },
 
-    inputChar(char: string): CheckResult {
-      if (completed) {
-        return { correct: false, completed: true }
-      }
+    setCharacter(character): CheckResult {
+      // 変換できる場合→変換後の文字が、ワードに合致していればOK
+      // 変換できない場合→今後、ワードに一致させられる場合はOK
+      // 消極的に変換する場合→左側の変換後がワードの現在位置に一致していて、かつ右側がワードに一致させられる場合はOK
 
-      const newBuffer = buffer + char
+      const tempBuffer = buffer + character
 
-      // 完全一致する変換ルールを検索
-      const exactEntry = searchEntry(newBuffer)
+      const entry = searchEntry(tempBuffer)
+      const prefixEntries = searchEntriesByPrefix(tempBuffer)
 
-      // プレフィックス一致する変換ルールを検索
-      const prefixEntries = searchEntriesByPrefix(newBuffer)
+      if (prefixEntries.length >= 2) {
+        // 変換できない場合
+        const entry = prefixEntries.find(entry => {
+          const isOutputCorrect =
+            entry.output === word.slice(wordIndex, wordIndex + entry.output.length)
 
-      if (exactEntry) {
-        // 完全一致した場合
-        const expectedOutput = word.slice(wordIndex, wordIndex + exactEntry.output.length)
-
-        if (exactEntry.output === expectedOutput) {
-          // 正しい入力
-          wordIndex += exactEntry.output.length
-          currentInput += char
-          romanIndex += exactEntry.input.length
-          buffer = exactEntry.nextInput || ''
-
-          // 単語が完了したかチェック
-          if (wordIndex >= word.length) {
-            completed = true
-            return { correct: true, completed: true }
+          let isNextInputCorrect = true
+          if (entry.nextInput) {
+            const index = wordIndex + entry.output.length
+            isNextInputCorrect = searchEntriesByPrefix(entry.nextInput).some(
+              e => e.output === word.slice(index, index + e.output.length)
+            )
           }
 
-          return { correct: true, completed: false }
-        } else {
-          // 間違った入力
-          return { correct: false, completed: false }
-        }
-      } else if (prefixEntries.length > 0) {
-        // プレフィックス一致がある場合（継続可能）
-        // 複数の候補がある場合、最適な候補を選択
-        const validEntries = prefixEntries.filter(entry => {
-          const expectedOutput = word.slice(wordIndex, wordIndex + entry.output.length)
-          return entry.output === expectedOutput
+          return isOutputCorrect && isNextInputCorrect
         })
 
-        if (validEntries.length > 0) {
-          // 継続可能な入力
-          buffer = newBuffer
-          currentInput += char
-          return { correct: true, completed: false }
+        if (entry !== undefined) {
+          // characterは正解
+          buffer = tempBuffer
+          currentRoman += character
+
+          // expectedを更新する
+          if (character === expected[0]) {
+            expected = expected.slice(1)
+          } else {
+            expected = createExpectedInput(word.slice(wordIndex), buffer)
+          }
+
+          return { correct: true }
         } else {
-          // 無効な入力
-          return { correct: false, completed: false }
+          return { correct: false }
         }
       } else {
-        // マッチする変換ルールがない
-        return { correct: false, completed: false }
+        if (entry) {
+          // 変換ルールがある場合は、変換後の文字列がワードに一致させられるならばOK
+          // TODO: entry.nextInputに関する処理
+          if (entry.output === word.slice(wordIndex, wordIndex + entry.output.length)) {
+            buffer = entry.nextInput ? entry.nextInput : ''
+            currentRoman += character
+            currentKana += entry.output
+            wordIndex += entry.output.length
+
+            if (expected[0] === character) {
+              // 候補と同じ文字を入力した場合は、候補をそのまま使う
+              expected = expected.slice(1)
+            } else {
+              // ローマ字入力の場合は、ここでnextInputを考慮しなくてOK？
+              // ローマ字の候補と違う場合は、ワードの残りに対する候補を再作成する
+              expected = createExpectedInput(word.slice(wordIndex))
+            }
+
+            return { correct: true }
+          } else {
+            return { correct: false }
+          }
+        } else if (prefixEntries.length === 0) {
+          // bufferが今後変換されることはない場合
+          // |buffer|-1文字と、1文字に分けて処理する
+
+          const left = tempBuffer.slice(0, tempBuffer.length - 1)
+          const right = tempBuffer.slice(tempBuffer.length - 1)
+
+          const leftConverted = convertRoman(left)
+          const isLeftCorrect =
+            leftConverted === word.slice(wordIndex, wordIndex + leftConverted.length)
+          const isRightCorrect = checkRightCorrect(right, word, wordIndex + leftConverted.length)
+
+          if (isLeftCorrect && isRightCorrect) {
+            buffer = right
+            currentRoman += character
+            currentKana += leftConverted
+            wordIndex += leftConverted.length
+
+            // expectedを更新する
+            expected = createExpectedInput(word.slice(wordIndex), right)
+            return { correct: true }
+          } else {
+            return { correct: false }
+          }
+        }
       }
-    },
 
-    reset() {
-      buffer = ''
-      wordIndex = 0
-      completed = false
-      currentInput = ''
-    },
-
-    getCurrentState() {
-      const typedPart = word.slice(0, wordIndex)
-      const currentChar = wordIndex < word.length ? word[wordIndex] : ''
-      const remainingPart = word.slice(wordIndex + 1)
-
-      const typedRoman = expectedInput.slice(0, romanIndex)
-      const currentRoman = buffer
-      const remainingRoman = expectedInput.slice(romanIndex + buffer.length)
-
-      return {
-        word,
-        typedPart,
-        currentChar,
-        remainingPart,
-        expectedRoman: expectedInput,
-        typedRoman,
-        currentRoman,
-        remainingRoman,
-      }
+      return { correct: true }
     },
   }
 
