@@ -46,6 +46,9 @@ React、TanStach Router、Viteを使います。
 - まずは基礎練習
   - e-typingのワードを持ってくる。とりあえず元気が出る言葉だけでOKかな。
   - 文字の入力機能を実装する。自作のライブラリを使う。
+    - https://github.com/tekihei2317/react-playground/blob/main/typing-input-check/src/App.tsx
+    - https://github.com/tekihei2317/react-playground/blob/main/typing-input-check/src/checker.ts
+    - https://github.com/tekihei2317/react-playground/blob/main/typing-input-check/src/checker.test.ts
   - 入力したデータを保存する。とりあえずメモリ上に保存することにして動作確認を優先する。
   - ワードの検索機能を実装する。何で検索できるようにしたいかは要確認。
 - 次に実践練習
