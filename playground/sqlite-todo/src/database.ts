@@ -1,5 +1,3 @@
-import sqlite3InitModule from '@sqlite.org/sqlite-wasm'
-
 export interface Todo {
   id: number
   text: string
@@ -8,95 +6,78 @@ export interface Todo {
 }
 
 class DatabaseManager {
-  private db: any = null
-  private sqlite3: any = null
+  private worker: Worker | null = null
+  private messageId = 0
+  private pendingMessages = new Map<number, { resolve: (value: any) => void; reject: (error: any) => void }>()
+  private dbInfo: any = null
 
   async initialize() {
-    console.log('Initializing SQLite...')
-    this.sqlite3 = await sqlite3InitModule()
-
-    // OPFS (Origin Private File System) サポートをチェック
-    if (this.sqlite3.opfs) {
-      console.log('Using OPFS for persistence')
-      this.db = new this.sqlite3.oo1.OpfsDb('/todo-app.db')
-    } else {
-      console.log('Using memory database (data will not persist)')
-      this.db = new this.sqlite3.oo1.DB()
+    console.log('Initializing SQLite Worker...')
+    
+    // Create worker from the same origin
+    this.worker = new Worker(new URL('./sqlite-worker.ts', import.meta.url), {
+      type: 'module'
+    })
+    
+    // Set up message handler
+    this.worker.onmessage = (event) => {
+      const { id, result, error } = event.data
+      const pending = this.pendingMessages.get(id)
+      
+      if (pending) {
+        this.pendingMessages.delete(id)
+        if (error) {
+          pending.reject(new Error(error))
+        } else {
+          pending.resolve(result)
+        }
+      }
     }
-
-    await this.createTables()
-    console.log('Database initialized successfully')
+    
+    // Initialize the database
+    this.dbInfo = await this.sendMessage('init')
+    console.log('Database initialized successfully', this.dbInfo)
   }
 
-  private async createTables() {
-    const sql = `
-      CREATE TABLE IF NOT EXISTS todos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        text TEXT NOT NULL,
-        completed BOOLEAN DEFAULT FALSE,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      );
-    `
-    this.db.exec(sql)
+  private async sendMessage(method: string, params?: any): Promise<any> {
+    if (!this.worker) {
+      throw new Error('Worker not initialized')
+    }
+    
+    const id = ++this.messageId
+    
+    return new Promise((resolve, reject) => {
+      this.pendingMessages.set(id, { resolve, reject })
+      this.worker!.postMessage({ id, method, params })
+    })
   }
 
   async addTodo(text: string): Promise<Todo> {
-    const stmt = this.db.prepare('INSERT INTO todos (text) VALUES (?) RETURNING *')
-    const result = stmt.get([text])
-    stmt.finalize()
-    return result as Todo
+    return await this.sendMessage('addTodo', { text })
   }
 
   async getTodos(): Promise<Todo[]> {
-    const stmt = this.db.prepare('SELECT * FROM todos ORDER BY created_at DESC')
-    const results = stmt.getAll()
-    stmt.finalize()
-    return results as Todo[]
+    return await this.sendMessage('getTodos')
   }
 
   async updateTodo(id: number, updates: Partial<Todo>): Promise<void> {
-    const fields = Object.keys(updates)
-      .map(key => `${key} = ?`)
-      .join(', ')
-    const values = Object.values(updates)
-
-    const stmt = this.db.prepare(`UPDATE todos SET ${fields} WHERE id = ?`)
-    stmt.run([...values, id])
-    stmt.finalize()
+    await this.sendMessage('updateTodo', { id, updates })
   }
 
   async deleteTodo(id: number): Promise<void> {
-    const stmt = this.db.prepare('DELETE FROM todos WHERE id = ?')
-    stmt.run([id])
-    stmt.finalize()
+    await this.sendMessage('deleteTodo', { id })
   }
 
   async toggleTodo(id: number): Promise<void> {
-    const stmt = this.db.prepare('UPDATE todos SET completed = NOT completed WHERE id = ?')
-    stmt.run([id])
-    stmt.finalize()
+    await this.sendMessage('toggleTodo', { id })
   }
 
-  // SQLクエリを直接実行する機能（デバッグ用）
   async executeQuery(sql: string): Promise<any[]> {
-    try {
-      const stmt = this.db.prepare(sql)
-      const results = stmt.getAll()
-      stmt.finalize()
-      return results
-    } catch (error) {
-      console.error('Query execution error:', error)
-      throw error
-    }
+    return await this.sendMessage('executeQuery', { sql })
   }
 
-  // データベースの状態を確認
   getInfo() {
-    return {
-      filename: this.db.filename,
-      isOpfs: !!this.sqlite3.opfs,
-      version: this.sqlite3.version.libVersion,
-    }
+    return this.dbInfo || { filename: 'Unknown', isOpfs: false, version: 'Unknown' }
   }
 }
 
