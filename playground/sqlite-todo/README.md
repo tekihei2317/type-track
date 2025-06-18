@@ -9,8 +9,8 @@
 - [x] SQLiteのAPIを知りたい。OO APIっていうのかな、一通り使いこなせるようになりたい。
 - [x] OPFSの中身を確認するにはどうするのがいい？SQL書いて中身確認したりしたいんだけど。
 - [x] データベースアクセスのコードを綺麗に書き直したい！
-- [ ] スキーマ管理にsqldefを使いたいんだけど、SQLite Wasmと組み合わせるにはどうすればいい？
-- [ ] SQLite Wasmのワーカーを使う場合の初期化方法が2つ書かれている（in the main thread with a wrapped workerっていうやつと、in a worker）けど、これって何が違うの？前者がおすすめされてるみたいだけど。
+- [x] スキーマ管理にsqldefを使いたいんだけど、SQLite Wasmと組み合わせるにはどうすればいい？
+- [x] SQLite Wasmのワーカーを使う場合の初期化方法が2つ書かれている（in the main thread with a wrapped workerっていうやつと、in a worker）けど、これって何が違うの？前者がおすすめされてるみたいだけど。
 
 ## OPFSって何？
 
@@ -259,7 +259,33 @@ const todos = await todoApi.current.getTodos()
 
 ## スキーマ管理にsqldefを使いたいんだけど、SQLite Wasmと組み合わせるにはどうすればいい？
 
-テーブル定義のDDLをちゃんと書けるか自信がない & 宣言的マイグレーションで手を抜きたいので、sqldefやPrismaを使おうかなと思っていました。
+テーブル定義のDDLをちゃんと書けるか自信がない & 宣言的マイグレーションで手を抜きたいので、sqldefやPrismaを使おうかなと思っていました。慣れているPrismaを採用し、Prisma Migrateをマイグレーションファイルの作成のみに使用しようと思います。
+
+あと、windowにAPIを生やして、コンソールからマイグレーション関係のコマンドも実行できるようにするといいと思います。APIはPrismaを参考にします。
+
+- `window.db.migrate`: マイグレーションの実行
+- `window.db.migrate.reset`: データベースを削除して、マイグレーションを再度行う。シードも実行する。
+- `window.db.seed`: シードを実行する
+
+## SQLite Wasmのワーカーを使う場合の初期化方法が2つ書かれている（in the main thread with a wrapped workerっていうやつと、in a worker）けど、これって何が違うの？前者がおすすめされてるみたいだけど。
+
+ここで`sqlite3Worker1Promiser`の意味を理解。WorkerのAPIがイベント駆動で使いずらいからPromise化したもの、という意味でしょう。Comlink使ってやってることをもうやってくれているということなので、こっちを使った方が良さそうですね。
+
+使ってみたところ、
+
+```js
+const promiser = await new Promise((resolve) => {
+  const _promiser = sqlite3Worker1Promiser({
+    onready: () => {
+      resolve(_promiser);
+    },
+  });
+});
+```
+
+の`onready`プロパティの型が定義されていなかったり、`todo-api-promiser.ts:19 Ignoring inability to install OPFS sqlite3_vfs: The OPFS sqlite3_vfs cannot run in the main thread because it requires Atomics.wait().`と何かメインスレッドで実行されていそうだったので、諦めました。
+
+大人しく今までのやり方を使おうと思います。Comlinkは続投ですね。
 
 ## メモ
 
