@@ -149,3 +149,7 @@ this.worker.onmessage = event => {
 ```
 
 上記の非同期APIへの書き換え、コールバック→Promiseの場合と同様の考え方らしい。
+
+### ComlinkでTypeScriptの型を使いたい！
+
+Comlinkの`Remote<T>`を使ったり、wrapするときに`wrap<T>`で型を指定してあげたらとりあえず良さそう。ワーカーをrefに入れる時にnullが入り込んでくるのなんとかしたいけど、いい方法は思いつかなかった。
