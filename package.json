@@ -15,6 +15,7 @@
     "@sqlite.org/sqlite-wasm": "^3.50.1-build1",
     "@tanstack/react-router": "^1.121.12",
     "@tanstack/router-devtools": "^1.121.12",
+    "comlink": "^4.4.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
