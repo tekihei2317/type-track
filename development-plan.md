@@ -30,3 +30,32 @@ React、TanStach Router、Viteを使います。
   - 統計情報画面
 
 練習画面を作成して、実際にタイピングを練習できるようにすることを最初の目標として進めます。
+
+## ユーザーがアプリケーションを使ってできること（design.mdより引用）
+
+### 練習機能
+
+- ユーザーはe-typingやWeather Typingのワードを練習することができる
+- ユーザーはワードの一覧を、上から順番に練習することができる（TypeLighter方式）
+- ユーザーはアプリによって計算された適切なタイミングで復習ができる
+- ユーザーはワードを特定の条件（ある文字列を含んでいる、KPMが低く苦手など）で絞り込んで練習できる
+- ユーザーはe-typingのトライアルのように、問題数や制限時間の決まった実践練習をすることができる
+
+実装のために必要なこと
+
+- まずは基礎練習
+  - e-typingのワードを持ってくる。とりあえず元気が出る言葉だけでOKかな。
+  - 文字の入力機能を実装する。自作のライブラリを使う。
+    - https://github.com/tekihei2317/react-playground/blob/main/typing-input-check/src/App.tsx
+    - https://github.com/tekihei2317/react-playground/blob/main/typing-input-check/src/checker.ts
+    - https://github.com/tekihei2317/react-playground/blob/main/typing-input-check/src/checker.test.ts
+  - 入力したデータを保存する。とりあえずメモリ上に保存することにして動作確認を優先する。
+  - ワードの検索機能を実装する。何で検索できるようにしたいかは要確認。
+- 次に実践練習
+  - 終了条件と出題順番を選択できるようにする
+  - プレイ後にリザルト画面を表示する
+
+### ログ機能
+
+- ユーザーは特定のワードについて、今までの練習履歴を見ることができる
+- ユーザーは特定の実践練習について、その履歴を見ることができる

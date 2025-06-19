@@ -9,6 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Type-track is a typing practice application designed for repetitive training and spaced repetition. The application targets typists who want to practice specific words and patterns rather than random words.
 
 Key features planned:
+
 - Basic practice mode with individual word training
 - Practical practice mode with timed sessions
 - Performance analysis and statistics tracking
@@ -27,10 +28,12 @@ Key features planned:
 The project follows an iterative approach, prioritizing functionality over design and data persistence initially:
 
 1. **High Priority**: Core typing practice screens
+
    - Basic practice mode (individual word training)
    - Practical practice mode (timed sessions)
 
 2. **Medium Priority**: Results and history screens
+
    - Basic practice results
    - Practical practice results
 
@@ -42,6 +45,7 @@ The project follows an iterative approach, prioritizing functionality over desig
 ## Data Models
 
 Core entities include:
+
 - **Topics** (お題): Collections of words for practice
 - **Words** (ワード): Individual typing exercises with readings
 - **Word Practice Records**: Individual word training sessions with keystroke timing
