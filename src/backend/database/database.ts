@@ -1,10 +1,15 @@
 import * as Comlink from 'comlink'
 import type { Remote } from 'comlink'
-import type { DatabaseWorkerProxy } from './database-models'
+
+// Workerとの通信用インターフェース
+export interface DatabaseWorkerProxy {
+  executeQuery: (sql: string, params?: unknown[]) => Promise<unknown[]>
+  seedInitialData: () => Promise<void>
+}
 
 // Workerの最小限のインターフェース（CRUD操作は除く）
 interface DatabaseWorkerApi {
-  executeQuery: (sql: string, params?: any[]) => Promise<unknown[]>
+  executeQuery: (sql: string, params?: unknown[]) => Promise<unknown[]>
   seedInitialData: () => Promise<void>
 }
 
@@ -21,7 +26,7 @@ const databaseWorker = createWorker<DatabaseWorkerApi>('./database-worker-new.ts
 
 // DatabaseWorkerProxyの実装
 export const database: DatabaseWorkerProxy = {
-  executeQuery: (sql: string, params?: any[]) => databaseWorker.executeQuery(sql, params),
+  executeQuery: (sql: string, params?: unknown[]) => databaseWorker.executeQuery(sql, params),
   seedInitialData: () => databaseWorker.seedInitialData(),
 }
 

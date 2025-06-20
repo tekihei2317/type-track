@@ -59,14 +59,3 @@ export interface PracticalWordPractice {
   wordPracticeId: number
   wordOrder: number
 }
-
-// procedure関数で共通で使用する型
-export interface ProcedureParams {
-  database: DatabaseWorkerProxy
-}
-
-// Workerとの通信用インターフェース
-export interface DatabaseWorkerProxy {
-  executeQuery: (sql: string, params?: any[]) => Promise<unknown[]>
-  seedInitialData: () => Promise<void>
-}

@@ -4,7 +4,7 @@ import sqlite3InitModule from '@sqlite.org/sqlite-wasm'
 import type { Database } from '@sqlite.org/sqlite-wasm'
 
 // マイグレーションファイルのインポート
-import migrationSQL from '../../prisma/migrations/20250620072129_init/migration.sql?raw'
+import migrationSQL from '../../../prisma/migrations/20250620072129_init/migration.sql?raw'
 
 let db: Database | null = null
 
@@ -46,7 +46,7 @@ async function seedInitialData(): Promise<void> {
     rowMode: 'object',
   })
 
-  if ((existingTopics[0] as any).count > 0) {
+  if ((existingTopics[0] as unknown as { count: number }).count > 0) {
     console.log('Initial data already exists, skipping seed')
     return
   }
@@ -55,14 +55,14 @@ async function seedInitialData(): Promise<void> {
 
   // サンプルお題の作成
   database.exec(`
-    INSERT INTO Topic (name) VALUES 
-      ('元気が出る言葉'), 
+    INSERT INTO Topic (name) VALUES
+      ('元気が出る言葉'),
       ('基本練習')
   `)
 
   // サンプルワードの作成
   database.exec(`
-    INSERT INTO Word (topicId, text, reading) VALUES 
+    INSERT INTO Word (topicId, text, reading) VALUES
       (1, '案外できるものだよ', 'あんがいできるものだよ'),
       (1, '大丈夫、きっとうまくいく', 'だいじょうぶ、きっとうまくいく'),
       (2, 'hello world', 'hello world'),
@@ -73,6 +73,7 @@ async function seedInitialData(): Promise<void> {
 }
 
 // 汎用クエリ実行（デバッグ用）
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function executeQuery(sql: string, params: any[] = []): Promise<unknown[]> {
   const database = await initDB()
 
@@ -87,7 +88,7 @@ async function executeQuery(sql: string, params: any[] = []): Promise<unknown[]>
 const databaseWorkerApi = {
   // 汎用クエリ実行
   executeQuery,
-  
+
   // 初期データ投入
   seedInitialData,
 }

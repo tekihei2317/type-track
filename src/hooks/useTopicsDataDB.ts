@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { Topic, Word } from '../types'
-import { topicRouter } from '../database/topic-router'
-import { wordRouter } from '../database/word-router'
+import { topicRouter } from '../backend/topic-router'
+import { wordRouter } from '../backend/word-router'
 
 export function useTopicsDataDB() {
   const [topics, setTopics] = useState<Topic[]>([])
