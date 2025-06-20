@@ -2,7 +2,12 @@
 import * as Comlink from 'comlink'
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm'
 import type { Database } from '@sqlite.org/sqlite-wasm'
-import { createMigrationTable, runMigrations, resetDatabase as resetDatabaseMigration, seedInitialData } from './database-migration'
+import {
+  createMigrationTable,
+  runMigrations,
+  resetDatabase as resetDatabaseMigration,
+  seedInitialData,
+} from './database-migration'
 
 let db: Database | null = null
 

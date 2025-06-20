@@ -5,8 +5,11 @@ import type { Database } from '@sqlite.org/sqlite-wasm'
 import migrationSQL from '../../../prisma/migrations/20250620072129_init/migration.sql?raw'
 
 // マイグレーション管理
-export async function runMigration(database: Database, migrationName: string, migrationSQL: string): Promise<void> {
-
+export async function runMigration(
+  database: Database,
+  migrationName: string,
+  migrationSQL: string
+): Promise<void> {
   // 既に実行済みかチェック
   const existingMigration = database.exec('SELECT name FROM _migrations WHERE name = ?', {
     bind: [migrationName],
@@ -118,21 +121,40 @@ export async function seedInitialData(database: Database): Promise<void> {
 
   console.log('Seeding initial data...')
 
-  // サンプルお題の作成
-  database.exec(`
-    INSERT INTO Topic (name) VALUES
-      ('元気が出る言葉'),
-      ('基本練習')
-  `)
+  // XMLファイルからワードをインポート
+  try {
+    const { importMultipleXmlFiles } = await import('./seed')
 
-  // サンプルワードの作成
-  database.exec(`
-    INSERT INTO Word (topicId, text, reading) VALUES
-      (1, '案外できるものだよ', 'あんがいできるものだよ'),
-      (1, '大丈夫、きっとうまくいく', 'だいじょうぶ、きっとうまくいく'),
-      (2, 'hello world', 'hello world'),
-      (2, 'programming', 'programming')
-  `)
+    // public/wordsディレクトリの既知のファイルをインポート
+    const xmlFiles = ['1258_給食のおかず.xml', '1259_梅雨の言葉.xml', '1260_元気が出る言葉.xml']
+
+    console.log('Importing XML files...')
+    const result = await importMultipleXmlFiles(database, xmlFiles)
+    console.log(
+      `Imported ${result.totalTopics} topics with ${result.totalWords} words from XML files`
+    )
+  } catch (error) {
+    console.error('Failed to import XML files:', error)
+
+    // XMLインポートに失敗した場合、サンプルデータを作成
+    console.log('Falling back to sample data...')
+
+    // サンプルお題の作成
+    database.exec(`
+      INSERT INTO Topic (name) VALUES
+        ('元気が出る言葉'),
+        ('基本練習')
+    `)
+
+    // サンプルワードの作成
+    database.exec(`
+      INSERT INTO Word (topicId, text, reading) VALUES
+        (1, '案外できるものだよ', 'あんがいできるものだよ'),
+        (1, '大丈夫、きっとうまくいく', 'だいじょうぶ、きっとうまくいく'),
+        (2, 'hello world', 'hello world'),
+        (2, 'programming', 'programming')
+    `)
+  }
 
   console.log('Initial data seeded successfully')
 }

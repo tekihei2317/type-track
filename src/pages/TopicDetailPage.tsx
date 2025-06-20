@@ -1,6 +1,6 @@
 import { useParams } from '@tanstack/react-router'
 import { useState } from 'react'
-import { useTopicsData } from '../hooks/useTopicsData'
+import { useTopicsDataDB } from '../hooks/useTopicsDataDB'
 import { InlineTypingPractice } from '../components/InlineTypingPractice'
 import type { Word } from '../types'
 
@@ -9,7 +9,7 @@ export function TopicDetailPage() {
   const [selectedWord, setSelectedWord] = useState<Word | null>(null)
   const [searchText, setSearchText] = useState('')
 
-  const { topics, getWordsByTopicId, loading } = useTopicsData()
+  const { topics, getWordsByTopicId, loading } = useTopicsDataDB()
 
   const topicIdNum = parseInt(topicId)
   const topic = topics.find(t => t.id === topicIdNum)

@@ -54,7 +54,7 @@ async function getTopics({ database }: ProcedureParams): Promise<Topic[]> {
 // routerはprocedureの集まり
 export const topicRouter = {
   getTopics: () => getTopics({ database }),
-  createTopic: (input: { name: string }) => createTopic({ database, input })
+  createTopic: (input: { name: string }) => createTopic({ database, input }),
 }
 
 // database.ts ワーカーを初期化する
@@ -96,8 +96,8 @@ async function getTopics({ database }: ProcedureParams): Promise<Topic[]> {
 }
 
 type ProcedureParams<T> = {
-  database: unknown, // 省略
-} & T;
+  database: unknown // 省略
+} & T
 
 // withDatabaseは (params: ProcedureParams<Input>) => Promise<T> を(input: Input) => Promise<T>に変換する関数
 // ↑適切な名前があれば変更する
@@ -107,7 +107,7 @@ function withDatabase<T>(fn: (params: ProcedureParams<Input>) => Promise<T>): ()
 }
 
 const topicRouter = {
-  getTopics: withDatabase(getTopics)
+  getTopics: withDatabase(getTopics),
 }
 
 // useTopicsDataDB.ts
