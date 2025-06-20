@@ -18,15 +18,16 @@ export function TopicDetailPage() {
     w => w.text.includes(searchText) || w.reading.includes(searchText)
   )
 
-  const handleInlineComplete = (wordId: number, result: { correct: boolean; kpm?: number }) => {
+  const handleInlineComplete = (wordId: number, result: { correct: boolean; kpm?: number; wordCompleted?: boolean }) => {
     console.log('Inline practice completed:', wordId, result)
-    if (result.correct) {
-      // 次のワードに自動で進む
+    if (result.wordCompleted) {
+      // ワード完了時に次のワードに自動で進む
       const currentIndex = filteredWords.findIndex(w => w.id === wordId)
       if (currentIndex < filteredWords.length - 1) {
         setSelectedWord(filteredWords[currentIndex + 1])
       } else {
         setSelectedWord(null) // 最後のワードが完了
+        console.log('All words completed!')
       }
     }
   }

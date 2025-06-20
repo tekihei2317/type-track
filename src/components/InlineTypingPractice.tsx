@@ -91,10 +91,32 @@ export function InlineTypingPractice({
         // 期待されるローマ字が変更された場合は更新
         updateExpectedRoman(checker.current.expected)
 
-        // TODO: ワードの入力が完了したら次に進む？
+        // ワードの入力が完了したかチェック
+        if (checker.current.currentKana === word.reading) {
+          // ワード完了時の処理
+          const totalTime = currentTime - startTime
+          const kpm = totalTime > 0 ? (word.reading.length / totalTime) * 60000 : 0
+
+          onComplete?.({
+            correct: true,
+            kpm: kpm,
+            totalTime: totalTime,
+            wordCompleted: true,
+          })
+        }
       }
     },
-    [checker, isActive, hasStarted, lastKeystrokeTime, addKeystroke, updateExpectedRoman]
+    [
+      checker,
+      isActive,
+      hasStarted,
+      lastKeystrokeTime,
+      addKeystroke,
+      updateExpectedRoman,
+      word.reading,
+      startTime,
+      onComplete,
+    ]
   )
 
   // キーボードイベントリスナーを設定
