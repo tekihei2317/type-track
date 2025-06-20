@@ -7,10 +7,12 @@ export interface DatabaseWorkerProxy {
   seedInitialData: () => Promise<void>
 }
 
-// Workerの最小限のインターフェース（CRUD操作は除く）
+// Workerのインターフェース（データベース操作とマイグレーション管理）
 interface DatabaseWorkerApi {
   executeQuery: (sql: string, params?: unknown[]) => Promise<unknown[]>
   seedInitialData: () => Promise<void>
+  runMigrations: () => Promise<void>
+  resetDatabase: () => Promise<void>
 }
 
 function createWorker<T>(path: string): Remote<T> {
@@ -22,7 +24,7 @@ function createWorker<T>(path: string): Remote<T> {
 }
 
 // Workerプロキシ - 低レベルなデータベース操作のみ
-const databaseWorker = createWorker<DatabaseWorkerApi>('./database-worker-new.ts')
+const databaseWorker = createWorker<DatabaseWorkerApi>('../worker/database-worker.ts')
 
 // DatabaseWorkerProxyの実装
 export const database: DatabaseWorkerProxy = {
@@ -30,5 +32,13 @@ export const database: DatabaseWorkerProxy = {
   seedInitialData: () => databaseWorker.seedInitialData(),
 }
 
-// アプリ起動時に初期データを投入
+// マイグレーション管理用の追加API
+export const migrationApi = {
+  migrate: () => databaseWorker.runMigrations(),
+  reset: () => databaseWorker.resetDatabase(),
+  seed: () => databaseWorker.seedInitialData(),
+}
+
+// アプリ起動時にマイグレーションと初期データを投入
+// 注意: initDBでrunMigrations()が呼ばれるため、明示的にmigrateを呼ぶ必要はない
 database.seedInitialData().catch(console.error)

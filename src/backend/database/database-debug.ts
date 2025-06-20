@@ -1,4 +1,4 @@
-import { database } from './database'
+import { database, migrationApi } from './database'
 
 // デバッグ用: ブラウザコンソールからSQL実行できるようにする
 declare global {
@@ -7,6 +7,11 @@ declare global {
     showTables: () => Promise<unknown>
     showTopics: () => Promise<unknown>
     showWords: (topicId?: number) => Promise<unknown>
+    db: {
+      migrate: () => Promise<void>
+      reset: () => Promise<void>
+      seed: () => Promise<void>
+    }
   }
 }
 
@@ -25,5 +30,24 @@ if (typeof window !== 'undefined') {
 
   window.showTables = async () => {
     return window.debugSQL("SELECT name FROM sqlite_master WHERE type='table'")
+  }
+
+  // マイグレーション管理用のコンソール関数
+  window.db = {
+    migrate: async () => {
+      console.log('Running migrations...')
+      await migrationApi.migrate()
+      console.log('Migrations completed')
+    },
+    reset: async () => {
+      console.log('Resetting database...')
+      await migrationApi.reset()
+      console.log('Database reset completed')
+    },
+    seed: async () => {
+      console.log('Running seed data...')
+      await migrationApi.seed()
+      console.log('Seed completed')
+    },
   }
 }
