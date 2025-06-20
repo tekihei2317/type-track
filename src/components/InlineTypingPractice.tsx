@@ -32,6 +32,9 @@ export function InlineTypingPractice({
     expectedRoman: checker.current.expected,
   })
 
+  // ミス状態の管理
+  const [hasMistake, setHasMistake] = useState(false)
+
   const { keystrokeData, addKeystroke, resetKeystrokes, updateExpectedRoman } = useKeystrokes(
     checker.current.expected
   )
@@ -42,6 +45,7 @@ export function InlineTypingPractice({
     setStartTime(0)
     setHasStarted(false)
     setLastKeystrokeTime(0)
+    setHasMistake(false)
     setInputState({
       currentKana: '',
       currentRoman: '',
@@ -77,6 +81,9 @@ export function InlineTypingPractice({
         const currentTime = Date.now()
         const keystrokeTime = currentTime - lastKeystrokeTime
 
+        // ミス状態をクリア
+        setHasMistake(false)
+
         // キーストロークを記録
         addKeystroke(event.key, keystrokeTime)
         setLastKeystrokeTime(currentTime)
@@ -104,6 +111,9 @@ export function InlineTypingPractice({
             wordCompleted: true,
           })
         }
+      } else {
+        // ミス時の処理
+        setHasMistake(true)
       }
     },
     [
@@ -142,7 +152,14 @@ export function InlineTypingPractice({
         {/* ローマ字表示 */}
         <div className="font-mono text-sm text-gray-600 text-center tracking-wide">
           <span className="text-green-600">{inputState.currentRoman}</span>
-          <span className="text-gray-400">{inputState.expectedRoman}</span>
+          {hasMistake && inputState.expectedRoman.length > 0 ? (
+            <>
+              <span className="text-red-600 bg-red-100">{inputState.expectedRoman[0]}</span>
+              <span className="text-gray-400">{inputState.expectedRoman.slice(1)}</span>
+            </>
+          ) : (
+            <span className="text-gray-400">{inputState.expectedRoman}</span>
+          )}
         </div>
       </div>
 

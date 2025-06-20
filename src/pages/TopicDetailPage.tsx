@@ -64,6 +64,27 @@ export function TopicDetailPage() {
       {/* インライン練習エリア */}
       {selectedWord && (
         <div className="bg-blue-50 rounded-lg p-6">
+          {/* 進捗表示 */}
+          <div className="flex justify-between items-center mb-4">
+            <div className="text-sm text-gray-600">
+              {filteredWords.findIndex(w => w.id === selectedWord.id) + 1} / {filteredWords.length}
+            </div>
+            {/* プログレスバー */}
+            <div className="flex-1 mx-4">
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{
+                    width: `${((filteredWords.findIndex(w => w.id === selectedWord.id) + 1) / filteredWords.length) * 100}%`
+                  }}
+                ></div>
+              </div>
+            </div>
+            <div className="text-sm text-gray-600">
+              基礎練習
+            </div>
+          </div>
+          
           <div className="text-center mb-4">
             <div className="text-xl font-bold text-gray-900">{selectedWord.text}</div>
           </div>
