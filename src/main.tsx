@@ -4,6 +4,9 @@ import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
 import './index.css'
 
+// データベースWorkerを初期化
+import './database/database-worker'
+
 const router = createRouter({ routeTree })
 
 declare module '@tanstack/react-router' {

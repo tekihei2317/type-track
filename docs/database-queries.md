@@ -30,14 +30,14 @@ WITH word_stats AS (
     COUNT(wpc.id) as practice_count,
     AVG(wpc.kpm) as avg_kpm,
     -- 中央値の計算（SQLiteの場合）
-    (SELECT kpm FROM WordPracticeCompletion wpc2 
-     WHERE wpc2.wordPracticeId IN 
+    (SELECT kpm FROM WordPracticeCompletion wpc2
+     WHERE wpc2.wordPracticeId IN
        (SELECT id FROM WordPractice WHERE wordId = wp.wordId)
        AND wpc2.status = 'COMPLETED'
        AND wpc2.kpm IS NOT NULL
-     ORDER BY kmp LIMIT 1 
-     OFFSET (SELECT COUNT(*) FROM WordPracticeCompletion wpc3 
-             WHERE wpc3.wordPracticeId IN 
+     ORDER BY kmp LIMIT 1
+     OFFSET (SELECT COUNT(*) FROM WordPracticeCompletion wpc3
+             WHERE wpc3.wordPracticeId IN
                (SELECT id FROM WordPractice WHERE wordId = wp.wordId)
                AND wpc3.status = 'COMPLETED'
                AND wpc3.kpm IS NOT NULL) / 2
@@ -67,7 +67,7 @@ ORDER BY w.id;
 SELECT w.id, w.text, w.reading, t.name as topic_name
 FROM Word w
 JOIN Topic t ON w.topicId = t.id
-WHERE w.text LIKE '%' || ? || '%' 
+WHERE w.text LIKE '%' || ? || '%'
    OR w.reading LIKE '%' || ? || '%'
 ORDER BY w.text;
 ```
@@ -81,7 +81,7 @@ VALUES (?, ?, ?);
 
 -- 練習完了・中断時
 INSERT INTO WordPracticeCompletion (
-  wordPracticeId, status, inputText, characterCount, missCount, 
+  wordPracticeId, status, inputText, characterCount, missCount,
   durationMs, firstStrokeMs, kpm, rkpm
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 ```
@@ -219,6 +219,7 @@ LIMIT 20;
 ### 6. データメンテナンス
 
 #### 6.1 初期データ投入
+
 ```sql
 -- サンプルデータの挿入
 INSERT INTO Topic (name) VALUES
@@ -235,6 +236,7 @@ INSERT INTO Word (topicId, text, reading) VALUES
 ## パフォーマンス考慮事項
 
 ### 推奨インデックス
+
 ```sql
 -- ワード関連
 CREATE INDEX idx_word_topicid ON Word(topicId);

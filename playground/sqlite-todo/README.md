@@ -26,7 +26,7 @@ Origin = スキーム + ホスト + ポート番号。
 
 ```js
 // ルート（FileSystemDirectoryHandle）を取得する
-const root = await navigator.storage.getDirectory();
+const root = await navigator.storage.getDirectory()
 
 // ディレクトリを作成する
 // { create: true }をつければディレクトリを作成できる
@@ -47,7 +47,7 @@ const fileHandle = await root.getFileHandle('example.txt', { create: true })
 // ファイルに書き込む
 // ストリームを取得してから書き込む。非同期らしい。
 const writable = await fileHandle.createWritable()
-await writable.write("Hello, world")
+await writable.write('Hello, world')
 await writable.close()
 
 // ファイルを読み込む
@@ -62,7 +62,7 @@ console.log(content)
 // ファイル、ディレクトリの一覧を取得する
 // root.entries()で、エントリーの非同期イテレータが取れる
 // root.keys()でファイル名飲み、root.values()でハンドルのみ取得できるみたい
-for await (const [name, handle] of  root.entries()) {
+for await (const [name, handle] of root.entries()) {
   console.log(`${name}:${handle.kind}`)
 }
 ```
@@ -84,11 +84,11 @@ OPFSには、同期APIと非同期APIがあるらしい。
 workerの使い方は、メインスレッドで
 
 worker.postMessage(data)でデータを送信する
-worker.onmessage((event) => { /* 処理 */ })で結果を受け取る
+worker.onmessage((event) => { /_ 処理 _/ })で結果を受け取る
 
 worker側では、
 
-self.onmessage((event) => { /* 処理 */ })
+self.onmessage((event) => { /_ 処理 _/ })
 
 > Workerを利用すると重たい処理を逃すことができるというのは分かったのですが、なぜ非同期APIより同期APIの方が高速なのかがわかりません。
 
@@ -105,14 +105,14 @@ comlinkはWorkerとメインスレッド間の通信を普通の関数呼び出�
 const obj = {
   counter: 0,
   inc() {
-    this.counter++;
+    this.counter++
   },
-};
+}
 
-Comlink.expose(obj);
+Comlink.expose(obj)
 
 // main.js
-const worker = new Worker("worker.js")
+const worker = new Worker('worker.js')
 const obj = Comlink.wrap(worker)
 alert(`Counter ${await obj.counter}`)
 await obj.inc()
@@ -123,7 +123,7 @@ Claudeと一緒にべんきょう。
 
 ![alt text](image-2.png)
 
-```ts
+````ts
 // ワーカーに送信している部分。pendingMessagesはMap。
 // promiseを返しているところが肝。
 return new Promise((resolve, reject) => {
@@ -147,7 +147,7 @@ this.worker.onmessage = event => {
     }
   }
 }
-```
+````
 
 上記の非同期APIへの書き換え、コールバック→Promiseの場合と同様の考え方らしい。
 
@@ -161,7 +161,7 @@ Comlinkの`Remote<T>`を使ったり、wrapするときに`wrap<T>`で型を指�
 // select
 const result = db.exec('select * from todos where id = 1', {
   returnValue: 'resultRows',
-  rowMode: 'object'
+  rowMode: 'object',
 })
 
 // create table
@@ -170,7 +170,7 @@ db.exec('create table if not exist t(a,b)')
 // insert
 db.exec({
   sql: 'insert into t(a,b) values(?,?)',
-  bind: [1, 2]
+  bind: [1, 2],
 })
 ```
 
@@ -230,7 +230,7 @@ function getTodos() {
     returnValue: 'resultRows',
     rowMode: 'object',
   })
-  return result;
+  return result
 }
 
 const todoApi = {
@@ -243,11 +243,9 @@ Comlink.expose(todoApi)
 // App.tsx
 function createWorker<T>(path: string): Comlink.wrap<T> {
   return Comlink.wrap<TodoApi>(
-    new Worker(
-      new URL(path, import.meta.url), {
-        type: 'module'
-      }
-    )
+    new Worker(new URL(path, import.meta.url), {
+      type: 'module',
+    })
   )
 }
 
@@ -274,13 +272,13 @@ const todos = await todoApi.current.getTodos()
 使ってみたところ、
 
 ```js
-const promiser = await new Promise((resolve) => {
+const promiser = await new Promise(resolve => {
   const _promiser = sqlite3Worker1Promiser({
     onready: () => {
-      resolve(_promiser);
+      resolve(_promiser)
     },
-  });
-});
+  })
+})
 ```
 
 の`onready`プロパティの型が定義されていなかったり、`todo-api-promiser.ts:19 Ignoring inability to install OPFS sqlite3_vfs: The OPFS sqlite3_vfs cannot run in the main thread because it requires Atomics.wait().`と何かメインスレッドで実行されていそうだったので、諦めました。

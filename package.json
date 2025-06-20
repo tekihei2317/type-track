@@ -12,6 +12,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@prisma/client": "^6.10.1",
     "@sqlite.org/sqlite-wasm": "^3.50.1-build1",
     "@tanstack/react-router": "^1.121.12",
     "@tanstack/router-devtools": "^1.121.12",

@@ -52,7 +52,9 @@ export function KpmLineChart({ keystrokeData, height = 100 }: KpmLineChartProps)
     return { x, y, ...data }
   })
 
-  const pathData = points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ')
+  const pathData = points
+    .map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`)
+    .join(' ')
 
   return (
     <div className="w-full">
