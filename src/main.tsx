@@ -4,6 +4,11 @@ import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
 import './index.css'
 
+// データベースWorkerを初期化
+import './backend/database/database'
+// デバッグ機能をwindowに追加
+import './backend/database/database-debug'
+
 const router = createRouter({ routeTree })
 
 declare module '@tanstack/react-router' {

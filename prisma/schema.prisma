@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// お題
+model Topic {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+
+  words Word[]
+}
+
+// ワード
+model Word {
+  id        Int      @id @default(autoincrement())
+  topicId   Int
+  text      String
+  reading   String
+  createdAt DateTime @default(now())
+
+  topic     Topic          @relation(fields: [topicId], references: [id])
+  practices WordPractice[]
+}
+
+// 基本練習（個別ワード練習）の開始記録
+model WordPractice {
+  id             Int      @id @default(autoincrement())
+  wordId         Int
+  startedAt      DateTime @default(now())
+  keystrokeTimes String // JSON形式でキーストロークタイミングを保存
+
+  word                   Word                    @relation(fields: [wordId], references: [id])
+  completion             WordPracticeCompletion?
+  practicalWordPractices PracticalWordPractice[]
+}
+
+// 基本練習（個別ワード練習）の完了・中断記録
+model WordPracticeCompletion {
+  id             Int                @id @default(autoincrement())
+  wordPracticeId Int                @unique
+  status         WordPracticeStatus // 完了 or 中断
+  inputText      String // 実際に入力された文字
+  characterCount Int // 入力文字数
+  missCount      Int // ミス数
+  durationMs     Int // 所要時間（ミリ秒）
+  firstStrokeMs  Int? // 初速（最初のキーストロークまでの時間）
+  kpm            Float? // 1分間あたりのキー数
+  rkpm           Float? // 初速抜きのKPM
+  completedAt    DateTime           @default(now())
+
+  wordPractice WordPractice @relation(fields: [wordPracticeId], references: [id])
+}
+
+// 実践練習セッションの開始記録
+model PracticalPractice {
+  id        Int      @id @default(autoincrement())
+  startedAt DateTime @default(now())
+
+  completion             PracticalPracticeCompletion?
+  practicalWordPractices PracticalWordPractice[]
+}
+
+// 実践練習セッションの完了・中断記録
+model PracticalPracticeCompletion {
+  id                  Int                     @id @default(autoincrement())
+  practicalPracticeId Int                     @unique
+  status              PracticalPracticeStatus // 完了 or 中断
+  characterCount      Int // 入力文字数
+  missCount           Int // ミス数
+  durationMs          Int // 所要時間（ミリ秒）
+  firstStrokeMs       Int? // 初速
+  kpm                 Float? // 1分間あたりのキー数
+  rkpm                Float? // 初速抜きのKPM
+  completedAt         DateTime                @default(now())
+
+  practicalPractice PracticalPractice @relation(fields: [practicalPracticeId], references: [id])
+}
+
+// 実践練習で行った個別ワード練習の関連
+model PracticalWordPractice {
+  id                  Int @id @default(autoincrement())
+  practicalPracticeId Int
+  wordPracticeId      Int
+  wordOrder           Int // 実践練習内での順番
+
+  practicalPractice PracticalPractice @relation(fields: [practicalPracticeId], references: [id])
+  wordPractice      WordPractice      @relation(fields: [wordPracticeId], references: [id])
+
+  @@unique([practicalPracticeId, wordOrder])
+}
+
+enum WordPracticeStatus {
+  COMPLETED // 完了
+  ABORTED // 中断
+}
+
+enum PracticalPracticeStatus {
+  COMPLETED // 完了
+  ABORTED // 中断
+}

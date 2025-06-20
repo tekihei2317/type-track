@@ -5,6 +5,7 @@
 ## 実装手順
 
 ### 1. Worker側の実装 (`counter-worker.ts`)
+
 以下のメソッドを実装してください：
 
 ```typescript
@@ -29,18 +30,21 @@ case 'getCount':
 ```
 
 ### 2. Manager側の実装 (`CounterManager.ts`)
+
 Workerとの通信部分を実装してください：
 
 #### Worker初期化
+
 ```typescript
 this.worker = new Worker(new URL('./counter-worker.ts', import.meta.url), {
-  type: 'module'
+  type: 'module',
 })
 ```
 
 #### メッセージ受信
+
 ```typescript
-this.worker.onmessage = (event) => {
+this.worker.onmessage = event => {
   const { id, result, error } = event.data
   const pending = this.pendingMessages.get(id)
 
@@ -56,12 +60,14 @@ this.worker.onmessage = (event) => {
 ```
 
 #### メッセージ送信
+
 ```typescript
 this.pendingMessages.set(id, { resolve, reject })
 this.worker.postMessage({ id, method, params })
 ```
 
 #### API実装
+
 ```typescript
 async increment(): Promise<number> {
   return await this.sendMessage('increment')
@@ -69,9 +75,11 @@ async increment(): Promise<number> {
 ```
 
 ### 3. UI側の実装 (`CounterApp.tsx`)
+
 React コンポーネントを完成させてください：
 
 #### 初期化
+
 ```typescript
 await counter.initialize()
 const initialCount = await counter.getCount()
@@ -79,16 +87,16 @@ setCount(initialCount)
 ```
 
 #### ボタンハンドラー
+
 ```typescript
 const newCount = await counter.increment()
 setCount(newCount)
 ```
 
 #### 表示
+
 ```tsx
-<div style={{ fontSize: '3rem', margin: '2rem 0' }}>
-  {count}
-</div>
+<div style={{ fontSize: '3rem', margin: '2rem 0' }}>{count}</div>
 ```
 
 ## テスト方法
@@ -107,6 +115,7 @@ setCount(newCount)
 ## 次のステップ
 
 CounterがWorkerで動作することを確認できたら：
+
 1. Comlinkを使った実装に書き換えてみる
 2. より複雑な状態（配列やオブジェクト）を扱ってみる
 3. SQLite Workerの仕組みを理解する
