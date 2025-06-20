@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { initializeChecker } from '../utils/typingChecker'
 import { useKeystrokes } from '../hooks/useKeystrokes'
 import { KeystrokeBarChart } from './KeystrokeBarChart'
+import { useEffectEvent } from '../utils/use-effect-event'
 import type { Word } from '../types'
 
 type InlineTypingPracticeProps = {
@@ -68,43 +69,42 @@ export function InlineTypingPractice({
     resetKeystrokes(checker.current.expected)
   }, [word, checker, resetKeystrokes])
 
+  // useEffectEventで統計更新処理を依存配列から分離
+  const updateStats = useEffectEvent(() => {
+    // 練習が開始されていない、またはstartTimeが0の場合は統計更新をスキップ
+    if (!hasStarted || startTime === 0) return
+    
+    const currentTime = Date.now()
+    const elapsedTime = currentTime - startTime
+
+    // 初速（最初の1キーストローク）を除いたrkpmを計算
+    const typedKeystrokes = inputState.currentRoman.length
+    const rkpmTime = typedKeystrokes > 1 ? elapsedTime : 0
+    const rkpm =
+      typedKeystrokes > 1 && rkpmTime > 0 ? ((typedKeystrokes - 1) / rkpmTime) * 60000 : 0
+
+    const newStats = {
+      rkpm: Math.round(rkpm),
+      elapsedTime: elapsedTime,
+      mistakeCount: stats.mistakeCount,
+    }
+
+    setStats(prev => ({
+      ...prev,
+      ...newStats,
+    }))
+
+    onStatsUpdate?.(newStats)
+  })
+
   // リアルタイム統計を0.1秒ごとに更新
   useEffect(() => {
-    if (!hasStarted || !isActive) return
+    if (!hasStarted || !isActive || startTime === 0) return
 
-    const interval = setInterval(() => {
-      const currentTime = Date.now()
-      const elapsedTime = currentTime - startTime
-
-      // 初速（最初の1キーストローク）を除いたrkpmを計算
-      const typedKeystrokes = inputState.currentRoman.length
-      const rkpmTime = typedKeystrokes > 1 ? elapsedTime : 0
-      const rkpm =
-        typedKeystrokes > 1 && rkpmTime > 0 ? ((typedKeystrokes - 1) / rkpmTime) * 60000 : 0
-
-      const newStats = {
-        rkpm: Math.round(rkpm),
-        elapsedTime: elapsedTime,
-        mistakeCount: stats.mistakeCount,
-      }
-
-      setStats(prev => ({
-        ...prev,
-        ...newStats,
-      }))
-
-      onStatsUpdate?.(newStats)
-    }, 100) // 0.1秒ごと
+    const interval = setInterval(updateStats, 100) // 0.1秒ごと
 
     return () => clearInterval(interval)
-  }, [
-    hasStarted,
-    isActive,
-    startTime,
-    inputState.currentRoman.length,
-    stats.mistakeCount,
-    onStatsUpdate,
-  ])
+  }, [hasStarted, isActive, startTime, updateStats])
 
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
