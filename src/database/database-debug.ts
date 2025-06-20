@@ -1,16 +1,6 @@
-import * as Comlink from 'comlink'
-import type { Remote } from 'comlink'
-import type { DatabaseApi } from './database-api'
-
-function createWorker<T>(path: string): Remote<T> {
-  return Comlink.wrap<T>(
-    new Worker(new URL(path, import.meta.url), {
-      type: 'module',
-    })
-  )
-}
-
-export const databaseApi = createWorker<DatabaseApi>('./database-api.ts')
+import { database } from './database'
+import { topicRouter } from './topic-router'
+import { wordRouter } from './word-router'
 
 // デバッグ用: ブラウザコンソールからSQL実行できるようにする
 declare global {
@@ -26,7 +16,7 @@ declare global {
 if (typeof window !== 'undefined') {
   window.debugSQL = async (sql: string, params: any[] = []) => {
     try {
-      const result = await databaseApi.executeQuery(sql, params)
+      const result = await database.executeQuery(sql, params)
       console.table(result)
       return result
     } catch (error) {
@@ -40,14 +30,14 @@ if (typeof window !== 'undefined') {
   }
 
   window.showTopics = async () => {
-    const topics = await databaseApi.getTopics()
+    const topics = await topicRouter.getTopics()
     console.table(topics)
     return topics
   }
 
   window.showWords = async (topicId?: number) => {
     if (topicId) {
-      const words = await databaseApi.getWordsByTopic(topicId)
+      const words = await wordRouter.getWordsByTopic({ topicId })
       console.table(words)
       return words
     } else {
@@ -55,6 +45,3 @@ if (typeof window !== 'undefined') {
     }
   }
 }
-
-// アプリ起動時に初期データを投入
-databaseApi.seedInitialData().catch(console.error)

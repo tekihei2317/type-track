@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { Topic, Word } from '../types'
-import { databaseApi } from '../database/database-worker'
+import { topicRouter } from '../database/topic-router'
+import { wordRouter } from '../database/word-router'
 
 export function useTopicsDataDB() {
   const [topics, setTopics] = useState<Topic[]>([])
@@ -15,12 +16,12 @@ export function useTopicsDataDB() {
         setError(null)
 
         // データベースからお題一覧を取得
-        const loadedTopics = await databaseApi.getTopics()
+        const loadedTopics = await topicRouter.getTopics()
 
         // 各お題のワードを取得
         const allWords: Word[] = []
         for (const topic of loadedTopics) {
-          const topicWords = await databaseApi.getWordsByTopic(topic.id)
+          const topicWords = await wordRouter.getWordsByTopic({ topicId: topic.id })
           allWords.push(...topicWords)
         }
 
@@ -47,10 +48,10 @@ export function useTopicsDataDB() {
     refresh: async () => {
       setLoading(true)
       try {
-        const loadedTopics = await databaseApi.getTopics()
+        const loadedTopics = await topicRouter.getTopics()
         const allWords: Word[] = []
         for (const topic of loadedTopics) {
-          const topicWords = await databaseApi.getWordsByTopic(topic.id)
+          const topicWords = await wordRouter.getWordsByTopic({ topicId: topic.id })
           allWords.push(...topicWords)
         }
         setTopics(loadedTopics)

@@ -5,7 +5,9 @@ import { routeTree } from './routeTree.gen'
 import './index.css'
 
 // データベースWorkerを初期化
-import './database/database-worker'
+import './database/database'
+// デバッグ機能をwindowに追加
+import './database/database-debug'
 
 const router = createRouter({ routeTree })
 
