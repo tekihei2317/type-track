@@ -3,6 +3,7 @@ import { initializeChecker } from '../utils/typingChecker'
 import { useKeystrokes } from '../hooks/useKeystrokes'
 import { KeystrokeBarChart } from './KeystrokeBarChart'
 import { useEffectEvent } from '../utils/use-effect-event'
+import { wordPracticeRouter } from '../backend/word-practice-router'
 import type { Word } from '../types'
 
 type InlineTypingPracticeProps = {
@@ -45,6 +46,9 @@ export function InlineTypingPractice({
     mistakeCount: 0,
   })
 
+  // ワード練習記録のID
+  const [wordPracticeId, setWordPracticeId] = useState<number | null>(null)
+
   const { keystrokeData, addKeystroke, resetKeystrokes, updateExpectedRoman } = useKeystrokes(
     checker.current.expected
   )
@@ -56,6 +60,7 @@ export function InlineTypingPractice({
     setHasStarted(false)
     setLastKeystrokeTime(0)
     setHasMistake(false)
+    setWordPracticeId(null)
     setStats({
       rkpm: 0,
       elapsedTime: 0,
@@ -73,7 +78,7 @@ export function InlineTypingPractice({
   const updateStats = useEffectEvent(() => {
     // 練習が開始されていない、またはstartTimeが0の場合は統計更新をスキップ
     if (!hasStarted || startTime === 0) return
-    
+
     const currentTime = Date.now()
     const elapsedTime = currentTime - startTime
 
@@ -134,6 +139,17 @@ export function InlineTypingPractice({
         }
         setStats(resetStats)
         onStatsUpdate?.(resetStats)
+
+        // ワード練習レコードを作成
+        wordPracticeRouter
+          .startWordPractice({ wordId: word.id })
+          .then(result => {
+            setWordPracticeId(result.wordPracticeId)
+            console.log('Started word practice:', result.wordPracticeId)
+          })
+          .catch(error => {
+            console.error('Failed to start word practice:', error)
+          })
       }
 
       // 入力処理
@@ -163,7 +179,38 @@ export function InlineTypingPractice({
         if (checker.current.currentKana === word.reading) {
           // ワード完了時の処理
           const totalTime = currentTime - startTime
-          const kpm = totalTime > 0 ? (word.reading.length / totalTime) * 60000 : 0
+          const kpm = totalTime > 0 ? (inputState.currentRoman.length / totalTime) * 60000 : 0
+          const rkpm =
+            inputState.currentRoman.length > 1 && totalTime > 0
+              ? ((inputState.currentRoman.length - 1) / totalTime) * 60000
+              : 0
+
+          // WordPracticeCompletionレコードを作成
+          if (wordPracticeId) {
+            wordPracticeRouter
+              .completeWordPractice({
+                wordPracticeId,
+                status: 'COMPLETED',
+                inputText: inputState.currentRoman,
+                characterCount: inputState.currentRoman.length,
+                missCount: stats.mistakeCount,
+                durationMs: totalTime,
+                firstStrokeMs: lastKeystrokeTime - startTime,
+                kpm: kpm,
+                rkpm: rkpm,
+                keystrokeTimes: keystrokeData.strokes.map(stroke => ({
+                  key: stroke.key,
+                  time: stroke.time,
+                  correct: true, // TODO: 正誤情報を追加
+                })),
+              })
+              .then(() => {
+                console.log('Completed word practice:', wordPracticeId)
+              })
+              .catch(error => {
+                console.error('Failed to complete word practice:', error)
+              })
+          }
 
           onComplete?.({
             correct: true,
