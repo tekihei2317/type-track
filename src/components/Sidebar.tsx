@@ -22,6 +22,12 @@ export function Sidebar() {
           >
             今日の復習
           </Link>
+          <Link
+            to="/basic-practice-results"
+            className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+          >
+            基礎練習記録
+          </Link>
         </nav>
 
         {/* Database Topics */}

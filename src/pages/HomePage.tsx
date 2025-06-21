@@ -9,6 +9,14 @@ export function HomePage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">ダッシュボード</h1>
         <p className="text-sm text-gray-600 mt-1">お題を選択して練習を始めましょう</p>
+        <div className="mt-4">
+          <Link
+            to="/basic-practice-results"
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            練習結果を見る
+          </Link>
+        </div>
       </div>
 
       {loading && (
