@@ -1,4 +1,4 @@
-import { useParams } from '@tanstack/react-router'
+import { useParams, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTopicsDataDB } from '../hooks/useTopicsDataDB'
 import { useWordPracticeStats } from '../hooks/useWordPracticeStats'
@@ -194,7 +194,13 @@ export function TopicDetailPage() {
                     }`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{word.text}</div>
+                      <Link
+                        to="/words/$wordId"
+                        params={{ wordId: word.id.toString() }}
+                        className="text-sm font-medium  hover:text-blue-600 hover:underline"
+                      >
+                        {word.text}
+                      </Link>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {statsLoading ? (

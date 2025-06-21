@@ -44,6 +44,7 @@ export function useTopicsDataDB() {
     loading,
     error,
     getWordsByTopicId: (topicId: number) => words.filter(word => word.topicId === topicId),
+    getWordById: (wordId: number) => words.find(word => word.id === wordId),
     // データベース関連の追加メソッド
     refresh: async () => {
       setLoading(true)

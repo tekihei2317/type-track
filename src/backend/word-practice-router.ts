@@ -219,11 +219,61 @@ async function getMultipleWordStats({
   }>
 }
 
+// 特定ワードの練習記録を取得
+async function getWordPracticeHistory({ database, input }: { database: DatabaseWorkerProxy; input: { wordId: number; limit?: number } }): Promise<Array<{
+  id: number
+  wordId: number
+  wordText: string
+  wordReading: string
+  startedAt: string
+  status?: string
+  durationMs?: number
+  kpm?: number
+  rkpm?: number
+  missCount?: number
+}>> {
+  const limit = input.limit || 50
+
+  const result = await database.executeQuery(`
+    SELECT 
+      wp.id,
+      wp.wordId,
+      w.text as wordText,
+      w.reading as wordReading,
+      wp.startedAt,
+      wpc.status,
+      wpc.durationMs,
+      wpc.kpm,
+      wpc.rkpm,
+      wpc.missCount
+    FROM WordPractice wp
+    LEFT JOIN Word w ON wp.wordId = w.id
+    LEFT JOIN WordPracticeCompletion wpc ON wp.id = wpc.wordPracticeId
+    WHERE wp.wordId = ?
+    ORDER BY wp.startedAt DESC
+    LIMIT ?
+  `, [input.wordId, limit])
+
+  return result as Array<{
+    id: number
+    wordId: number
+    wordText: string
+    wordReading: string
+    startedAt: string
+    status?: string
+    durationMs?: number
+    kpm?: number
+    rkpm?: number
+    missCount?: number
+  }>
+}
+
 // 型安全なAPI
 export const wordPracticeRouter = {
   startWordPractice: withDatabase(startWordPractice),
   completeWordPractice: withDatabase(completeWordPractice),
   getRecentWordPractices: withDatabase(getRecentWordPractices),
+  getWordPracticeHistory: withDatabase(getWordPracticeHistory),
   getWordPracticeStats: withDatabase(getWordPracticeStats),
   getMultipleWordStats: withDatabase(getMultipleWordStats),
 }
