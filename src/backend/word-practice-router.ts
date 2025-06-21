@@ -177,10 +177,53 @@ async function getWordPracticeStats({
   }
 }
 
+// 複数ワードの練習統計を一括取得
+async function getMultipleWordStats({
+  database,
+  input,
+}: {
+  database: DatabaseWorkerProxy
+  input: { wordIds: number[] }
+}): Promise<
+  Array<{
+    wordId: number
+    averageRkpm?: number
+    totalPractices: number
+    noMissPractices: number
+  }>
+> {
+  if (input.wordIds.length === 0) return []
+
+  const placeholders = input.wordIds.map(() => '?').join(',')
+
+  const result = await database.executeQuery(
+    `
+    SELECT 
+      wp.wordId,
+      COUNT(wp.id) as totalPractices,
+      AVG(CASE WHEN wpc.status = 'COMPLETED' THEN wpc.rkpm END) as averageRkpm,
+      COUNT(CASE WHEN wpc.status = 'COMPLETED' AND wpc.missCount = 0 THEN 1 END) as noMissPractices
+    FROM WordPractice wp
+    LEFT JOIN WordPracticeCompletion wpc ON wp.id = wpc.wordPracticeId
+    WHERE wp.wordId IN (${placeholders})
+    GROUP BY wp.wordId
+  `,
+    input.wordIds
+  )
+
+  return result as Array<{
+    wordId: number
+    averageRkpm?: number
+    totalPractices: number
+    noMissPractices: number
+  }>
+}
+
 // 型安全なAPI
 export const wordPracticeRouter = {
   startWordPractice: withDatabase(startWordPractice),
   completeWordPractice: withDatabase(completeWordPractice),
   getRecentWordPractices: withDatabase(getRecentWordPractices),
   getWordPracticeStats: withDatabase(getWordPracticeStats),
+  getMultipleWordStats: withDatabase(getMultipleWordStats),
 }

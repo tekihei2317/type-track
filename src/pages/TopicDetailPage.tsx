@@ -1,6 +1,7 @@
 import { useParams } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTopicsDataDB } from '../hooks/useTopicsDataDB'
+import { useWordPracticeStats } from '../hooks/useWordPracticeStats'
 import { InlineTypingPractice } from '../components/InlineTypingPractice'
 import type { Word } from '../types'
 
@@ -22,6 +23,9 @@ export function TopicDetailPage() {
   const filteredWords = words.filter(
     w => w.text.includes(searchText) || w.reading.includes(searchText)
   )
+
+  // ワードの練習統計を取得
+  const { getWordStats, loading: statsLoading } = useWordPracticeStats(filteredWords.map(w => w.id))
 
   const handleInlineComplete = (
     wordId: number,
@@ -161,10 +165,13 @@ export function TopicDetailPage() {
                 ワード
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                kpm
+                RKPM
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 安定打
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                挑戦回数
               </th>
             </tr>
           </thead>
@@ -177,6 +184,7 @@ export function TopicDetailPage() {
               </tr>
             ) : (
               filteredWords.map(word => {
+                const stats = getWordStats(word.id)
                 return (
                   <tr
                     key={word.id}
@@ -188,8 +196,31 @@ export function TopicDetailPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{word.text}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {statsLoading ? (
+                        <div className="text-gray-400">...</div>
+                      ) : stats?.averageRkpm ? (
+                        Math.round(stats.averageRkpm)
+                      ) : (
+                        '-'
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {statsLoading ? (
+                        <div className="text-gray-400">...</div>
+                      ) : stats && stats.totalPractices > 0 ? (
+                        `${Math.round(stats.stabilityRate * 100)}%`
+                      ) : (
+                        '-'
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {statsLoading ? (
+                        <div className="text-gray-400">...</div>
+                      ) : (
+                        stats?.totalPractices || 0
+                      )}
+                    </td>
                   </tr>
                 )
               })
