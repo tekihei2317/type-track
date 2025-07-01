@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { initializeChecker } from '../utils/typingChecker'
-import { useKeystrokes } from '../hooks/useKeystrokes'
+import { initializeChecker } from '../utils/typing-checker'
+import { useKeystrokes } from '../hooks/use-keystrokes'
 import { KeystrokeBarChart } from './KeystrokeBarChart'
 import { useEffectEvent } from '../utils/use-effect-event'
 import { wordPracticeRouter } from '../backend/word-practice-router'

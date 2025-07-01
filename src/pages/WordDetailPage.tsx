@@ -1,6 +1,6 @@
 import { useParams, Link } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { useTopicsDataDB } from '../hooks/useTopicsDataDB'
+import { useTopicsDataDB } from '../hooks/use-topics-data-db'
 import { wordPracticeRouter } from '../backend/word-practice-router'
 import { KeystrokeBarChart } from '../components/KeystrokeBarChart'
 import type { Word } from '../types'

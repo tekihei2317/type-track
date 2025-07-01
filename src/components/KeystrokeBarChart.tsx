@@ -1,4 +1,4 @@
-import type { KeystrokeData } from '../hooks/useKeystrokes'
+import type { KeystrokeData } from '../hooks/use-keystrokes'
 
 type KeystrokeBarChartProps = {
   keystrokeData: KeystrokeData

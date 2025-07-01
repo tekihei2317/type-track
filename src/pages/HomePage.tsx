@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { useTopicsDataDB } from '../hooks/useTopicsDataDB'
+import { useTopicsDataDB } from '../hooks/use-topics-data-db'
 
 export function HomePage() {
   const { topics, loading, error } = useTopicsDataDB()
