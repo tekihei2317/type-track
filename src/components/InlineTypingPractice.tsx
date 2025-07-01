@@ -8,7 +8,7 @@ import type { Word } from '../types'
 
 type InlineTypingPracticeProps = {
   word: Word
-  onComplete?: (result: { correct: boolean; kpm?: number }) => void
+  onComplete?: (result: { correct: boolean; kpm?: number; totalTime?: number; wordCompleted?: boolean }) => void
   onStatsUpdate?: (stats: { rkpm: number; elapsedTime: number; mistakeCount: number }) => void
   isActive?: boolean
 }
@@ -245,8 +245,14 @@ export function InlineTypingPractice({
       addKeystroke,
       updateExpectedRoman,
       word.reading,
+      word.id,
       startTime,
       onComplete,
+      onStatsUpdate,
+      inputState.currentRoman,
+      stats.mistakeCount,
+      wordPracticeId,
+      keystrokeData.strokes,
     ]
   )
 

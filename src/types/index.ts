@@ -1,6 +1,7 @@
 export type Topic = {
   id: number
   name: string
+  createdAt: string
 }
 
 export type Word = {

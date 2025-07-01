@@ -14,7 +14,9 @@ export function useWordPracticeStats(wordIds: number[]) {
   const [loading, setLoading] = useState(false)
 
   // wordIdsの配列を安定化
-  const stableWordIds = useMemo(() => wordIds, [JSON.stringify(wordIds)])
+  const wordIdsString = JSON.stringify(wordIds)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const stableWordIds = useMemo(() => wordIds, [wordIdsString])
 
   useEffect(() => {
     if (stableWordIds.length === 0) {
