@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from '@tanstack/react-router'
 import { wordPracticeRouter } from '../backend/word-practice-router'
 
 type PracticeRecord = {
@@ -106,7 +107,13 @@ export function BasicPracticeResultsPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-4">
-                      <div className="text-sm font-medium text-gray-900">{record.wordText}</div>
+                      <Link 
+                        to="/words/$wordId" 
+                        params={{ wordId: record.wordId.toString() }}
+                        className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        {record.wordText}
+                      </Link>
                       <div className="text-sm text-gray-600">
                         {new Date(record.startedAt).toLocaleString('ja-JP')}
                       </div>
