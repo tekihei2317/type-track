@@ -1,6 +1,7 @@
-import { useParams } from '@tanstack/react-router'
+import { useParams, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTopicsDataDB } from '../hooks/useTopicsDataDB'
+import { useWordPracticeStats } from '../hooks/useWordPracticeStats'
 import { InlineTypingPractice } from '../components/InlineTypingPractice'
 import type { Word } from '../types'
 
@@ -8,6 +9,11 @@ export function TopicDetailPage() {
   const { topicId } = useParams({ from: '/topics/$topicId' })
   const [selectedWord, setSelectedWord] = useState<Word | null>(null)
   const [searchText, setSearchText] = useState('')
+  const [currentStats, setCurrentStats] = useState({
+    rkpm: 0,
+    elapsedTime: 0,
+    mistakeCount: 0,
+  })
 
   const { topics, getWordsByTopicId, loading } = useTopicsDataDB()
 
@@ -18,15 +24,22 @@ export function TopicDetailPage() {
     w => w.text.includes(searchText) || w.reading.includes(searchText)
   )
 
-  const handleInlineComplete = (wordId: number, result: { correct: boolean; kpm?: number }) => {
+  // ワードの練習統計を取得
+  const { getWordStats, loading: statsLoading } = useWordPracticeStats(filteredWords.map(w => w.id))
+
+  const handleInlineComplete = (
+    wordId: number,
+    result: { correct: boolean; kpm?: number; wordCompleted?: boolean }
+  ) => {
     console.log('Inline practice completed:', wordId, result)
-    if (result.correct) {
-      // 次のワードに自動で進む
+    if (result.wordCompleted) {
+      // ワード完了時に次のワードに自動で進む
       const currentIndex = filteredWords.findIndex(w => w.id === wordId)
       if (currentIndex < filteredWords.length - 1) {
         setSelectedWord(filteredWords[currentIndex + 1])
       } else {
         setSelectedWord(null) // 最後のワードが完了
+        console.log('All words completed!')
       }
     }
   }
@@ -69,8 +82,40 @@ export function TopicDetailPage() {
           <InlineTypingPractice
             word={selectedWord}
             onComplete={result => handleInlineComplete(selectedWord.id, result)}
+            onStatsUpdate={setCurrentStats}
             isActive={true}
           />
+
+          {/* 統計表示エリア */}
+          <div className="mt-4 bg-white rounded-lg border p-4">
+            <div className="grid grid-cols-4 gap-4 text-center">
+              <div>
+                <div className="text-xs text-gray-500 uppercase tracking-wide">進捗</div>
+                <div className="text-lg font-mono font-bold">
+                  {filteredWords.findIndex(w => w.id === selectedWord.id) + 1}/
+                  {filteredWords.length}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500 uppercase tracking-wide">RKPM</div>
+                <div className="text-lg font-mono font-bold text-blue-600">{currentStats.rkpm}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500 uppercase tracking-wide">時間</div>
+                <div className="text-lg font-mono font-bold">
+                  {(currentStats.elapsedTime / 1000).toFixed(1)}s
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500 uppercase tracking-wide">ミス</div>
+                <div
+                  className={`text-lg font-mono font-bold ${currentStats.mistakeCount > 0 ? 'text-red-600' : 'text-green-600'}`}
+                >
+                  {currentStats.mistakeCount}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -120,10 +165,13 @@ export function TopicDetailPage() {
                 ワード
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                kpm
+                RKPM
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 安定打
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                挑戦回数
               </th>
             </tr>
           </thead>
@@ -136,6 +184,7 @@ export function TopicDetailPage() {
               </tr>
             ) : (
               filteredWords.map(word => {
+                const stats = getWordStats(word.id)
                 return (
                   <tr
                     key={word.id}
@@ -145,10 +194,39 @@ export function TopicDetailPage() {
                     }`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{word.text}</div>
+                      <Link
+                        to="/words/$wordId"
+                        params={{ wordId: word.id.toString() }}
+                        className="text-sm font-medium  hover:text-blue-600 hover:underline"
+                      >
+                        {word.text}
+                      </Link>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {statsLoading ? (
+                        <div className="text-gray-400">...</div>
+                      ) : stats?.averageRkpm ? (
+                        Math.round(stats.averageRkpm)
+                      ) : (
+                        '-'
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {statsLoading ? (
+                        <div className="text-gray-400">...</div>
+                      ) : stats && stats.totalPractices > 0 ? (
+                        `${Math.round(stats.stabilityRate * 100)}%`
+                      ) : (
+                        '-'
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {statsLoading ? (
+                        <div className="text-gray-400">...</div>
+                      ) : (
+                        stats?.totalPractices || 0
+                      )}
+                    </td>
                   </tr>
                 )
               })
