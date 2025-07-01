@@ -1,6 +1,11 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { Link } from '@tanstack/react-router'
 import { wordPracticeRouter } from '../backend/word-practice-router'
+
+export const Route = createFileRoute('/basic-practice-results')({
+  component: BasicPracticeResultsPage,
+})
 
 type PracticeRecord = {
   id: number
@@ -107,8 +112,8 @@ export function BasicPracticeResultsPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-4">
-                      <Link 
-                        to="/words/$wordId" 
+                      <Link
+                        to="/words/$wordId"
                         params={{ wordId: record.wordId.toString() }}
                         className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
                       >

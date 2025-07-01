@@ -4,7 +4,7 @@ import {
   createExpectedInput,
   searchEntriesByPrefix,
   searchEntry,
-} from './romanTable'
+} from './roman-table'
 
 export type CheckResult = {
   correct: boolean

@@ -1,4 +1,10 @@
-export function ReviewPage() {
+import { createFileRoute } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/review')({
+  component: ReviewPage,
+})
+
+function ReviewPage() {
   return (
     <div className="space-y-6">
       <div>

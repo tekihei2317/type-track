@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { initializeChecker } from '../utils/typingChecker'
-import { useKeystrokes } from '../hooks/useKeystrokes'
+import { initializeChecker } from '../utils/typing-checker'
+import { useKeystrokes } from '../hooks/use-keystrokes'
 import { KeystrokeBarChart } from './KeystrokeBarChart'
 import { useEffectEvent } from '../utils/use-effect-event'
 import { wordPracticeRouter } from '../backend/word-practice-router'
@@ -8,7 +8,7 @@ import type { Word } from '../types'
 
 type InlineTypingPracticeProps = {
   word: Word
-  onComplete?: (result: { correct: boolean; kpm?: number }) => void
+  onComplete?: (result: { correct: boolean; kpm?: number; totalTime?: number; wordCompleted?: boolean }) => void
   onStatsUpdate?: (stats: { rkpm: number; elapsedTime: number; mistakeCount: number }) => void
   isActive?: boolean
 }
@@ -245,8 +245,14 @@ export function InlineTypingPractice({
       addKeystroke,
       updateExpectedRoman,
       word.reading,
+      word.id,
       startTime,
       onComplete,
+      onStatsUpdate,
+      inputState.currentRoman,
+      stats.mistakeCount,
+      wordPracticeId,
+      keystrokeData.strokes,
     ]
   )
 

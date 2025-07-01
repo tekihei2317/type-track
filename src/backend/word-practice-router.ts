@@ -165,7 +165,15 @@ async function getWordPracticeStats({
     [input.wordId]
   )
 
-  const stats = statsResult[0] as any
+  const stats = statsResult[0] as {
+    totalPractices: number
+    completedPractices: number
+    averageKpm: number | null
+    averageRkpm: number | null
+    averageMissCount: number | null
+    bestKpm: number | null
+    bestRkpm: number | null
+  }
   return {
     totalPractices: stats.totalPractices || 0,
     completedPractices: stats.completedPractices || 0,

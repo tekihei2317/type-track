@@ -1,9 +1,14 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { useParams, Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { useTopicsDataDB } from '../hooks/useTopicsDataDB'
-import { useWordPracticeStats } from '../hooks/useWordPracticeStats'
+import { useTopicsDataDB } from '../hooks/use-topics-data-db'
+import { useWordPracticeStats } from '../hooks/use-word-practice-stats'
 import { InlineTypingPractice } from '../components/InlineTypingPractice'
 import type { Word } from '../types'
+
+export const Route = createFileRoute('/topics/$topicId')({
+  component: TopicDetailPage,
+})
 
 export function TopicDetailPage() {
   const { topicId } = useParams({ from: '/topics/$topicId' })

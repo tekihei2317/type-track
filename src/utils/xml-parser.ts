@@ -64,6 +64,7 @@ export function convertETypingTopicToAppData(
   const topic: Topic = {
     id: topicId,
     name: eTypingTopic.name,
+    createdAt: new Date().toISOString(),
   }
 
   const words: Word[] = eTypingTopic.words.map((word, index) => ({

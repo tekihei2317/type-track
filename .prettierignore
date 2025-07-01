@@ -14,3 +14,5 @@ public/
 # Config files that shouldn't be formatted
 package-lock.json
 *.xml
+
+src/routeTree.gen.ts
