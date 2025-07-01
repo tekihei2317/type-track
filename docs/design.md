@@ -41,11 +41,11 @@ e-typingやWeather Typingなどのタイピングゲームでは、ワードが�
 
 ワードをテキストで検索したり、他の条件で検索したり（filter）、並べ替えたり、件数を制限できる。
 
-![alt text](image.png)
+![alt text](design-0.png)
 
 検索については、以下のMochiのデザインを参考にする（sort、filterの部分）。
 
-![alt text](image-6.png)
+![alt text](design-6.png)
 
 ### お題詳細画面（実践練習モード）
 
@@ -57,7 +57,7 @@ spaceボタンを押してスタートし、スタートすると基礎練習画
 
 実践練習が終了すると、リザルトが表示される。リザルトにはkpm、入力文字数、ミス数、正解率などが表示される。
 
-![alt text](image-1.png)
+![alt text](design-1.png)
 
 ### ワード詳細画面
 
@@ -69,7 +69,7 @@ spaceボタンを押してスタートし、スタートすると基礎練習画
 
 グラフで各文字に何秒かかっているか確認することができる。ここは基礎練習モードと同様に、棒グラフにしたい。
 
-![alt text](image-2.png)
+![alt text](design-2.png)
 
 ### 基礎練習の練習結果画面
 
@@ -97,7 +97,7 @@ spaceボタンを押してスタートし、スタートすると基礎練習画
 
 参考: うあーメモ
 
-![alt text](image-3.png)
+![alt text](design-3.png)
 
 ### ダッシュボード
 
@@ -119,7 +119,7 @@ WIP
 
 ### 画像版
 
-![alt text](image-4.png)
+![alt text](design-4.png)
 
 ### テキスト版
 
