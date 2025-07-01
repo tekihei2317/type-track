@@ -1,7 +1,12 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 import { useTopicsDataDB } from '../hooks/use-topics-data-db'
 
-export function HomePage() {
+export const Route = createFileRoute('/')({
+  component: HomePage,
+})
+
+function HomePage() {
   const { topics, loading, error } = useTopicsDataDB()
 
   return (
